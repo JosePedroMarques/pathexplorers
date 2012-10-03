@@ -1,5 +1,8 @@
 *.class
 ./aiad1/bin/
+./.classpath
+./.project
+./.settings/
 # Package Files #
 *.jar
 *.war
