@@ -1,32 +1,26 @@
 package agents;
 
 import java.awt.Color;
-import java.awt.image.ColorModel;
 
 import map.Cell.Value;
-
-import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.SimGraphics;
+import uchicago.src.sim.space.Object2DGrid;
 
-public class Wall extends BasicAgent {
+public class Exit extends BasicAgent {
 
-	
-	public Wall(int x,int y)
-	{
-		super(x,y,new Color(0,255,0));
+	public Exit(int x, int y){
+		super(x,y,new Color(255,255,255));
 	}
+
 	@Override
 	public void draw(SimGraphics g) {
 		g.drawFastCircle(color);
-	
 		
 	}
+
 	@Override
 	public Value getValue() {
-		return Value.Wall;
+		return Value.Exit;
 	}
-
-
-	
 
 }

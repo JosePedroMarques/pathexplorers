@@ -2,6 +2,8 @@ package agents;
 
 import java.awt.Color;
 
+import map.Cell.Value;
+
 import uchicago.src.sim.gui.Drawable;
 
 
@@ -21,7 +23,6 @@ public abstract class BasicAgent implements Drawable {
 	}
 	
 	
-
 	@Override
 	public int getX() {
 		// TODO Auto-generated method stub
@@ -33,5 +34,7 @@ public abstract class BasicAgent implements Drawable {
 		// TODO Auto-generated method stub
 		return y;
 	}
+
+	public abstract Value getValue() ;
 
 }
