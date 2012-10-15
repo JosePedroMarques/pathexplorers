@@ -1,6 +1,7 @@
 package agents;
 
 import java.awt.Color;
+import java.util.Vector;
 
 import map.Cell;
 import map.Cell.Value;
@@ -10,7 +11,7 @@ import uchicago.src.sim.space.Object2DGrid;
 
 public abstract class ArmyUnit extends BasicAgent {
 
-	double comunicationRange = 15;
+	private int communicationRange = 7;
 	int sightRange = 5;
 	protected Object2DGrid space;
 	private Map map;
@@ -136,6 +137,54 @@ public abstract class ArmyUnit extends BasicAgent {
 		}
 		return true;
 
+	}
+	
+	public void broadcastMap(){
+		
+		
+		Vector v = space.getMooreNeighbors(x, y, getCommunicationRange(), getCommunicationRange(), false);
+		for (Object o : v){
+			
+			if(canCommunicate(o)){
+				ArmyUnit a = (ArmyUnit)o;
+				a.communicate(this.map);
+			}
+		}
+		
+		
+	}
+
+	private void communicate(Map map2) {
+		for(int i = 0; i < map.getY(); i++)
+			for(int j = 0; j< map.getX(); j++)
+				if(map.getPosition(j, i).getValue() == Value.Unknown)
+					map.setPosition(j, i, map2.getPosition(j, i));
+		
+	}
+
+	
+
+	private boolean canCommunicate(Object o) {
+		
+		if(((BasicAgent)o).canReceiveComms()){
+			ArmyUnit a = (ArmyUnit) o;
+			return Math.abs(x-a.getX()) <= a.getCommunicationRange() && Math.abs(y-a.getY()) <= a.getCommunicationRange();
+		
+		}return false;
+	}
+
+	/**
+	 * @return the communicationRange
+	 */
+	public int getCommunicationRange() {
+		return communicationRange;
+	}
+
+	/**
+	 * @param communicationRange the communicationRange to set
+	 */
+	public void setCommunicationRange(int communicationRange) {
+		this.communicationRange = communicationRange;
 	}
 
 }

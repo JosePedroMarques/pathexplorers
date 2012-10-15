@@ -30,5 +30,11 @@ public class Soldier extends ArmyUnit {
 	public Value getValue() {
 		return Value.Soldier;
 	}
+
+	@Override
+	public boolean canReceiveComms() {
+		// TODO Auto-generated method stub
+		return true;
+	}
 	
 }

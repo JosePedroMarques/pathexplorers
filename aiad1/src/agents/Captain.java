@@ -26,7 +26,7 @@ public class Captain extends ArmyUnit{
 	@Override
 	public void move() {
 		
-		int xMove = Random.uniform.nextIntFromTo(0, 2)-1;
+	/*	int xMove = Random.uniform.nextIntFromTo(0, 2)-1;
 		int yMove = Random.uniform.nextIntFromTo(0, 2)-1;
 		if(space.getObjectAt(this.x+xMove, this.y+yMove) == null) {
 			space.putObjectAt(this.x, this.y,null);
@@ -34,12 +34,18 @@ public class Captain extends ArmyUnit{
 			this.y += yMove;
 			space.putObjectAt(this.x, this.y, this);
 		}
-		
+		*/
 	}
 
 	@Override
 	public Value getValue() {
 		return Value.Captain;
+	}
+
+	@Override
+	public boolean canReceiveComms() {
+		// TODO Auto-generated method stub
+		return true;
 	}
 
 }

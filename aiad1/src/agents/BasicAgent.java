@@ -37,4 +37,6 @@ public abstract class BasicAgent implements Drawable {
 
 	public abstract Value getValue() ;
 
+	public abstract boolean canReceiveComms();
+
 }

@@ -23,4 +23,10 @@ public class Exit extends BasicAgent {
 		return Value.Exit;
 	}
 
+	@Override
+	public boolean canReceiveComms() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

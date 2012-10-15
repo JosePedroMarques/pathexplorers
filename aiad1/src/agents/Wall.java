@@ -25,6 +25,11 @@ public class Wall extends BasicAgent {
 	public Value getValue() {
 		return Value.Wall;
 	}
+	@Override
+	public boolean canReceiveComms() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 
 	

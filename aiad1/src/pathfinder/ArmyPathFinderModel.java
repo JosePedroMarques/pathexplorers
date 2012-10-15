@@ -138,9 +138,14 @@ public class ArmyPathFinderModel extends SimModelImpl {
 			for(int i = 0; i < agentList.size(); i++) {
 				ArmyUnit agent = (ArmyUnit) agentList.get(i);
 				
-				agent.move();
-				agent.lookAround();
 				
+				agent.lookAround();
+				agent.broadcastMap();
+				//broadcast
+				//can i see the exit?
+				//if yes -> start walking in that direction
+				//no? check which direction has more unknowns and walk that way
+				agent.move();
 			}
 		}
 
