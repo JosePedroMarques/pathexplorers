@@ -73,6 +73,8 @@ public class ArmyPathFinderModel extends SimModelImpl {
 		schedule = new Schedule();
 		if (dsurf != null) dsurf.dispose();
 		dsurf = new DisplaySurface(this, "Army PathFinder");
+		dsurf.getBounds().width = 600;
+		dsurf.getBounds().height = 200;
 		registerDisplaySurface("Army PathFinder", dsurf);
 		
 		/*
@@ -138,13 +140,8 @@ public class ArmyPathFinderModel extends SimModelImpl {
 			for(int i = 0; i < agentList.size(); i++) {
 				ArmyUnit agent = (ArmyUnit) agentList.get(i);
 				
-				
 				agent.lookAround();
 				agent.broadcastMap();
-				//broadcast
-				//can i see the exit?
-				//if yes -> start walking in that direction
-				//no? check which direction has more unknowns and walk that way
 				agent.move();
 			}
 		}

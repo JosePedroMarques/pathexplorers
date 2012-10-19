@@ -12,6 +12,7 @@ public class Soldier extends ArmyUnit {
 	
 	public Soldier(int x, int y,Object2DGrid space){
 		super(x,y,new Color(0,0,255),space);
+		this.communicationRange = 1;
 	}
 
 	@Override

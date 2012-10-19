@@ -14,7 +14,8 @@ public class Captain extends ArmyUnit{
 	
 	public Captain(int x, int y,Object2DGrid space){
 		
-	super(x,y,new Color(255,0,0),space);
+		super(x,y,new Color(255,0,0),space);
+		this.communicationRange = 7;
 	}
 
 	@Override
@@ -23,19 +24,7 @@ public class Captain extends ArmyUnit{
 		
 	}
 
-	@Override
-	public void move() {
-		
-	/*	int xMove = Random.uniform.nextIntFromTo(0, 2)-1;
-		int yMove = Random.uniform.nextIntFromTo(0, 2)-1;
-		if(space.getObjectAt(this.x+xMove, this.y+yMove) == null) {
-			space.putObjectAt(this.x, this.y,null);
-			this.x += xMove;
-			this.y += yMove;
-			space.putObjectAt(this.x, this.y, this);
-		}
-		*/
-	}
+	
 
 	@Override
 	public Value getValue() {
