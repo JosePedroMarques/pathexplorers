@@ -6,6 +6,11 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
+
+import map.Cell;
+import map.Cell.Value;
+import map.Map;
 
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
@@ -21,6 +26,8 @@ import agents.Captain;
 import agents.Exit;
 import agents.Soldier;
 import agents.Wall;
+import astar.AStar;
+import astar.AStarNode;
 
 
 
@@ -35,6 +42,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	private Object2DGrid space;
 	private int xSize;
 	private int ySize;
+	private Map map;
 
 	
 
@@ -91,12 +99,18 @@ public class ArmyPathFinderModel extends SimModelImpl {
 		
 		buildModel();
 		buildDisplay();
-		buildSchedule();
+		//buildSchedule();
+		Cell init = new Cell(Value.Empty,3,1);
+		Cell goal = new Cell(Value.Exit,4,5);
+		
+		LinkedList<AStarNode> path = AStar.run(init, goal, map);
+		for (AStarNode n: path)
+			System.out.print(n.getCoords()+"->");
 	}
 
 	public void buildModel() {
 		agentList = new ArrayList<ArmyUnit>();
-		readMap("textfile2.txt");
+		readMap("textfile.txt");
 		
 		/*for (int i = 0; i<numberOfAgents; i++) {
 			int x, y;
@@ -152,6 +166,8 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	public static void main(String[] args) {
 		SimInit init = new SimInit();
 		init.loadModel(new ArmyPathFinderModel(), null, false);
+		
+		
 	}
 	public void readMap(String filename) {
 		
@@ -180,6 +196,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 			  xSize = x;
 			  ySize = y;
 			  space = new Object2DGrid(xSize, ySize);
+			  map = new Map(xSize,ySize);
 			 
 			  int i = 0, j = 0;
 			  String line;
@@ -190,24 +207,27 @@ public class ArmyPathFinderModel extends SimModelImpl {
 							 Wall w =new Wall(j,i);
 							 
 							 space.putObjectAt(j, i, w);
-							
+							 map.setPosition(j, i, new Cell(Value.Wall,j,i));
 							 break;
 						 case SOLDIER:
 							 Soldier s =new Soldier(j,i,space);
 							 agentList.add(s);
 							 space.putObjectAt(j, i, s);
+							 map.setPosition(j, i, new Cell(Value.Soldier,j,i));
 							 break;
 						 case CAPTAIN:
 							 Captain c =new Captain(j,i,space);
 							 agentList.add(c);
 							 space.putObjectAt(j, i, c);
+							 map.setPosition(j, i, new Cell(Value.Captain,j,i));
 							 break;
 						 case EXIT:
 							 Exit e = new Exit(j,i);
 							 space.putObjectAt(j, i, e);
+							 map.setPosition(j, i, new Cell(Value.Exit,j,i));
 							 break;
 						default:
-							
+							 map.setPosition(j, i, new Cell(Value.Empty,j,i));
 							break;
 							 
 						 

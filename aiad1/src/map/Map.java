@@ -1,9 +1,14 @@
 package map;
 
+import java.util.LinkedList;
+
+import astar.AStarMap;
+import astar.AStarNode;
+
 import utils.Pair;
 import map.Cell.Value;
 
-public class Map {
+public class Map extends AStarMap {
 
 	private int noReachableUnkowns = 0;
 	private Cell[][] map;
@@ -19,7 +24,7 @@ public class Map {
 
 		for (int i = 0; i < y; i++)
 			for (int j = 0; j < x; j++)
-				map[i][j] = new Cell(Value.Unknown);
+				map[i][j] = new Cell(Value.Unknown, j, i);
 	}
 
 	public void setPosition(int x, int y, Cell pos) {
@@ -35,7 +40,7 @@ public class Map {
 	@Override
 	public String toString() {
 		String r = "";
-		
+
 		for (int i = 0; i < getY(); i++) {
 			for (int j = 0; j < getX(); j++)
 				r += map[i][j].toString() + " ";
@@ -104,7 +109,7 @@ public class Map {
 	public int getNumberOfReachableValues(int x, int y, int sightRange, Value v) {
 
 		noReachableUnkowns = 0;
-		takeALook(x,y,v);
+		takeALook(x, y, v);
 		// Look left
 		int searched = 0;
 		int xS = x;
@@ -214,5 +219,33 @@ public class Map {
 		return true;
 
 	}
+
+	@Override
+	public  LinkedList<AStarNode> getReachableNodes(AStarNode position) {
+		LinkedList<AStarNode> reachableNodes = new LinkedList<AStarNode>();
+		int x = position.getX();
+		int y = position.getY();
+		
+		if(x-1>=0 && map[y][x-1].getValue()!=Value.Wall)
+			reachableNodes.add(map[y][x-1]);
+		if(x+1<this.x && map[y][x+1].getValue()!=Value.Wall)
+			reachableNodes.add(map[y][x+1]);
+		if(y-1>=0 && map[y-1][x].getValue()!=Value.Wall)
+			reachableNodes.add(map[y-1][x]);
+		if(y+1<this.y && map[y+1][x].getValue()!=Value.Wall)
+			reachableNodes.add(map[y+1][x]);
+		
+			
+		
+		return reachableNodes;
+	}
+
+	@Override
+	public int calculateH(AStarNode currentPosition, AStarNode goal) {
+		
+		return 10 * (Math.abs(currentPosition.getX()-goal.getX()) + Math.abs(currentPosition.getY()-goal.getY()));
+	}
+
+	
 
 }

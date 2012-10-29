@@ -1,6 +1,14 @@
 package map;
 
-public class Cell {
+
+
+
+
+import astar.AStarNode;
+
+public class Cell extends AStarNode  {
+	
+	
 	
 	public enum Value {
 		Wall("W"),Empty("E"),Visited("V"), Captain("C"),Soldier("S"),Me("M"),Exit("X"),Unknown("U");
@@ -16,9 +24,12 @@ public class Cell {
 		  }
 	}
 	private Value value;
-	Cell (){};
-	public Cell(Value value){
+	public Cell (){};
+	public Cell(Value value,int x, int y){
+		this.x = x;
+		this.y = y;
 		this.setValue(value);
+		this.setG(10);
 	}
 	/**
 	 * @return the value
@@ -58,7 +69,10 @@ public class Cell {
 	@Override
 	public String toString(){
 		return this.value.toString();
-		
 	}
+	
+	
+	
+
 
 }

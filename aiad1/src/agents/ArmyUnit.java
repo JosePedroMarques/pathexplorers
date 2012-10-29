@@ -107,7 +107,7 @@ public abstract class ArmyUnit extends BasicAgent {
 	public void doMove(Pair<Integer, Integer> direction) {
 
 		space.putObjectAt(this.x, this.y, null);
-		map.setPosition(this.x, this.y, new Cell(Value.Visited));
+		map.setPosition(this.x, this.y, new Cell(Value.Visited,this.x,this.y));
 		this.x = direction.getFirst();
 		this.y = direction.getSecond();
 		space.putObjectAt(this.x, this.y, this);
@@ -202,7 +202,8 @@ public abstract class ArmyUnit extends BasicAgent {
 
 		}
 
-		map.setPosition(x, y, new Cell(Value.Me));
+		map.setPosition(x, y, new Cell(Value.Me,x,y));
+		
 		System.out.println(map);
 	}
 
@@ -226,11 +227,11 @@ public abstract class ArmyUnit extends BasicAgent {
 		if (o == null){ 
 			if(map.getPosition(xS, yS).getValue()!=Value.Visited) {
 		
-				map.setPosition(xS, yS, new Cell(Value.Empty));
+				map.setPosition(xS, yS, new Cell(Value.Empty,xS,yS));
 			}
 		} else {
 			BasicAgent a = (BasicAgent) o;
-			map.setPosition(xS, yS, new Cell(a.getValue()));
+			map.setPosition(xS, yS, new Cell(a.getValue(),xS,yS));
 			if (a.getValue() == Value.Wall)
 				return false;
 
@@ -260,7 +261,7 @@ public abstract class ArmyUnit extends BasicAgent {
 					if(map2.getPosition(j, i).getValue() != Value.Visited)
 						map.setPosition(j, i, map2.getPosition(j, i));
 					else
-						map.setPosition(j, i, new Cell(Value.Empty));
+						map.setPosition(j, i, new Cell(Value.Empty,j,i));
 				}
 
 	}
