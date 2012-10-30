@@ -2,8 +2,12 @@ package agents;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Stack;
 import java.util.Vector;
+
+import astar.AStar;
+import astar.AStarNode;
 
 import map.Cell;
 import map.Cell.Value;
@@ -20,6 +24,8 @@ public abstract class ArmyUnit extends BasicAgent {
 	protected Object2DGrid space;
 	private Map map;
 	protected Stack<Pair<Integer,Integer>> movesDone;
+	protected LinkedList<AStarNode> aStarPath = null;
+	protected boolean hasReachedExit = false;
 
 	
 
@@ -67,15 +73,26 @@ public abstract class ArmyUnit extends BasicAgent {
 	}
 	
 	public void move() {
-
-		if (map.getExitLocation() != null) {
+		Pair<Integer,Integer> nextMove;
+		Cell exit = map.getExit();
+		if (exit!= null || aStarPath!=null) {
 			// move to exit
-			System.out.println("I should move to the exit");
+			if(aStarPath == null){
+				
+				aStarPath = AStar.run(map.getPosition(x, y), exit, map);
+
+			}
+			AStarNode nextNode = aStarPath.removeFirst();
+			if (nextNode.equals(exit))
+				hasReachedExit = true;
+			nextMove = new Pair<Integer,Integer>(nextNode.getX(),nextNode.getY());
+			movesDone.push(nextMove);
+			
 		} else {
 			Pair<Integer,ArrayList<Pair<Integer, Integer>>> noUnknowns = searchSpaceFor(Value.Empty,0);
 			int maxU = noUnknowns.getFirst();
 			ArrayList<Pair<Integer, Integer>> directions = noUnknowns.getSecond();
-			Pair<Integer,Integer> nextMove;
+			
 			System.out.println("Empty = " + maxU);
 			if(maxU > 0){
 				nextMove = directions.get(Random.uniform.nextIntFromTo(0,
@@ -99,8 +116,9 @@ public abstract class ArmyUnit extends BasicAgent {
 			
 			
 			
-			doMove(nextMove);
+			
 		}
+		doMove(nextMove);
 
 	}
 
@@ -223,6 +241,8 @@ public abstract class ArmyUnit extends BasicAgent {
 	}
 
 	private boolean takeALook(int xS, int yS) {
+		if( xS>= space.getSizeX() || xS< 0 || yS >= space.getSizeY()|| yS <0)
+			return false;
 		Object o = space.getObjectAt(xS, yS);
 		if (o == null){ 
 			if(map.getPosition(xS, yS).getValue()!=Value.Visited) {
@@ -290,6 +310,12 @@ public abstract class ArmyUnit extends BasicAgent {
 	 */
 	public void setCommunicationRange(int communicationRange) {
 		this.communicationRange = communicationRange;
+	}
+
+
+	public boolean hasReachedExit() {
+		// TODO Auto-generated method stub
+		return hasReachedExit;
 	}
 
 }

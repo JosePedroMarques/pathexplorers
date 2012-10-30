@@ -2,6 +2,8 @@ package map;
 
 import java.util.LinkedList;
 
+import org.apache.commons.collections.BinaryHeap;
+
 import astar.AStarMap;
 import astar.AStarNode;
 
@@ -14,8 +16,7 @@ public class Map extends AStarMap {
 	private Cell[][] map;
 	private int x;
 	private int y;
-	private Pair<Integer, Integer> exitLocation = new Pair<Integer, Integer>(
-			-1, -1);
+	private Cell exit = null;
 
 	public Map(int x, int y) {
 		this.setX(x);
@@ -30,7 +31,7 @@ public class Map extends AStarMap {
 	public void setPosition(int x, int y, Cell pos) {
 		map[y][x] = pos;
 		if (pos.getValue() == Value.Exit)
-			exitLocation = new Pair<Integer, Integer>(x, y);
+			exit = map[y][x];
 	}
 
 	public Cell getPosition(int x, int y) {
@@ -99,12 +100,7 @@ public class Map extends AStarMap {
 		return sum;
 	}
 
-	public Pair<Integer, Integer> getExitLocation() {
-		if (exitLocation.getFirst() == -1)
-			return null;
-		else
-			return exitLocation;
-	}
+	
 
 	public int getNumberOfReachableValues(int x, int y, int sightRange, Value v) {
 
@@ -244,6 +240,27 @@ public class Map extends AStarMap {
 	public int calculateH(AStarNode currentPosition, AStarNode goal) {
 		
 		return 10 * (Math.abs(currentPosition.getX()-goal.getX()) + Math.abs(currentPosition.getY()-goal.getY()));
+	}
+	
+	public void printAStarWorking(LinkedList<AStarNode> closedList, BinaryHeap openList){
+		for (int i = 0; i < getY(); i++) {
+			for (int j = 0; j < getX(); j++){
+				AStarNode a = map[i][j];
+				if(closedList.contains(a))
+					System.out.print("C ");
+				else if(openList.contains(a))
+					System.out.print("O ");
+				else
+					System.out.print(map[i][j].toString() + " ");
+			}
+				
+			System.out.println();
+		}
+	}
+
+	public Cell getExit() {
+		
+		return exit;
 	}
 
 	

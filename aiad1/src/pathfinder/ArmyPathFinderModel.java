@@ -99,18 +99,21 @@ public class ArmyPathFinderModel extends SimModelImpl {
 		
 		buildModel();
 		buildDisplay();
-		//buildSchedule();
-		Cell init = new Cell(Value.Empty,3,1);
-		Cell goal = new Cell(Value.Exit,4,5);
+		buildSchedule();
+		/*Cell init = new Cell(Value.Empty,27,12);
+		Cell goal = new Cell(Value.Exit,66,0);
 		
 		LinkedList<AStarNode> path = AStar.run(init, goal, map);
-		for (AStarNode n: path)
-			System.out.print(n.getCoords()+"->");
+		if(path!=null)
+			for (AStarNode n: path)
+				System.out.print(n.getCoords()+"->");
+		else 
+			System.out.println("No path found");*/
 	}
 
 	public void buildModel() {
 		agentList = new ArrayList<ArmyUnit>();
-		readMap("textfile.txt");
+		readMap("textfile2.txt");
 		
 		/*for (int i = 0; i<numberOfAgents; i++) {
 			int x, y;
@@ -153,10 +156,13 @@ public class ArmyPathFinderModel extends SimModelImpl {
 			// iterate through all agents
 			for(int i = 0; i < agentList.size(); i++) {
 				ArmyUnit agent = (ArmyUnit) agentList.get(i);
+				if(!agent.hasReachedExit()){
+					agent.lookAround();
+					agent.broadcastMap();
+					agent.move();
+				}
 				
-				agent.lookAround();
-				agent.broadcastMap();
-				agent.move();
+					
 			}
 		}
 
