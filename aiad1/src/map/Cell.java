@@ -75,7 +75,7 @@ public class Cell extends AStarNode  {
 	
 	@Override
 	public boolean equals(Object that){
-		Cell c = (Cell)that;
+		AStarNode c = (AStarNode)that;
 		return this.x == c.getX() && this.y == c.getY();
 	}
 	

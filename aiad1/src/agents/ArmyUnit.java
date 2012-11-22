@@ -16,6 +16,7 @@ import map.Map;
 
 import uchicago.src.sim.space.Object2DGrid;
 import uchicago.src.sim.util.Random;
+import utils.DirectionList;
 import utils.Pair;
 
 public abstract class ArmyUnit extends BasicAgent {
@@ -37,7 +38,7 @@ public abstract class ArmyUnit extends BasicAgent {
 		movesDone.push(new Pair<Integer, Integer>(x, y));
 	}
 
-	public Pair<Integer, ArrayList<Pair<Integer, Integer>>> searchSpaceFor(
+	public DirectionList searchSpaceFor(
 			Value v, int range) {
 		// List of possible directions
 		int max = Integer.MIN_VALUE;
@@ -54,8 +55,8 @@ public abstract class ArmyUnit extends BasicAgent {
 				if (o == null) { // Espaco vazio, posso andar
 					ArrayList<Value> arrayV = new ArrayList<Value>();
 					arrayV.add(v);
-					int noUnknowns = map.getReachableValues(j, i,
-							range, arrayV ).size();
+					int noUnknowns = map
+							.getReachableValues(j, i, range, arrayV).size();
 
 					if (noUnknowns > max) {
 
@@ -69,8 +70,7 @@ public abstract class ArmyUnit extends BasicAgent {
 				}
 			}
 
-		return new Pair<Integer, ArrayList<Pair<Integer, Integer>>>(max,
-				directions);
+		return new DirectionList(max,directions);
 	}
 
 	public void move() {
@@ -90,8 +90,8 @@ public abstract class ArmyUnit extends BasicAgent {
 		}// senao e preciso calcular o proximo passo
 		else {
 			ArrayList<Cell> unitsInSight = getUnitsInSight();
-			//se estiver sozinho
-			if (unitsInSight.isEmpty()) {
+			// se estiver sozinho
+		//	if (unitsInSight.isEmpty()) {
 				nextMove = getPreferedMove().getSecond();// tentar andar para
 															// frente
 				if (nextMove == null)
@@ -99,35 +99,39 @@ public abstract class ArmyUnit extends BasicAgent {
 				else
 					movesDone.push(nextMove);
 
-			} else
-				nextMove = negotiateMove(unitsInSight);
+			//} else
+				//nextMove = negotiateMove(unitsInSight);
 		}
 		doMove(nextMove);
 
 	}
 
 	private Pair<Integer, Integer> negotiateMove(ArrayList<Cell> unitsInSight) {
-		ArrayList<ArmyUnit> armyUnits= getArmyUnits(unitsInSight);
-		
+		ArrayList<ArmyUnit> armyUnits = getArmyUnits(unitsInSight);
+		//fazer a minha lista de direções ordenada
+		//pedir a todos
+		//escolher a melhor
+		//avisar esse, retirar os outros
 		return null;
 	}
 
 	private ArrayList<ArmyUnit> getArmyUnits(ArrayList<Cell> unitsInSight) {
 		ArrayList<ArmyUnit> armyUnits = new ArrayList<ArmyUnit>();
-		for(Cell c: unitsInSight){
-			armyUnits.add((ArmyUnit)space.getObjectAt(c.getX(), c.getY()));
+		for (Cell c : unitsInSight) {
+			armyUnits.add((ArmyUnit) space.getObjectAt(c.getX(), c.getY()));
 		}
 		return armyUnits;
 	}
 
 	private ArrayList<Cell> getUnitsInSight() {
-		
+
 		ArrayList<Value> arrayUnits = new ArrayList<Value>();
 		arrayUnits.add(Value.Captain);
-		arrayUnits.add(Value.Soldier);	
-		arrayUnits.add(Value.Robot);	
-		return (ArrayList<Cell>) map.getReachableValues(x,y,sightRange,arrayUnits);
-		
+		arrayUnits.add(Value.Soldier);
+		arrayUnits.add(Value.Robot);
+		return (ArrayList<Cell>) map.getReachableValues(x, y, sightRange,
+				arrayUnits);
+
 	}
 
 	public Pair<Integer, Integer> backtraceStep() {
@@ -143,26 +147,21 @@ public abstract class ArmyUnit extends BasicAgent {
 
 	public Pair<Integer, Pair<Integer, Integer>> getPreferedMove() {
 		Pair<Integer, Integer> nextMove;
-		Pair<Integer, ArrayList<Pair<Integer, Integer>>> noEmpties = searchSpaceFor(
-				Value.Empty, 0);
-		int maxE = noEmpties.getFirst();
-		ArrayList<Pair<Integer, Integer>> directions = noEmpties.getSecond();
+		DirectionList noEmpties = searchSpaceFor(Value.Empty, 0);
+		int maxE = noEmpties.getGainValue();
+		
 
 		if (maxE > 0) {
-			nextMove = directions.get(Random.uniform.nextIntFromTo(0,
-					directions.size() - 1));
+			nextMove = noEmpties.getRandomDirection();
 
 			return new Pair<Integer, Pair<Integer, Integer>>(maxE, nextMove);
 		}
 
-		Pair<Integer, ArrayList<Pair<Integer, Integer>>> noUnknowns = searchSpaceFor(
-				Value.Unknown, sightRange);
-		int maxU = noUnknowns.getFirst();
-		directions = noUnknowns.getSecond();
-
+		DirectionList noUnknowns = searchSpaceFor(Value.Unknown, sightRange);
+		int maxU = noUnknowns.getGainValue();
+		
 		if (maxU > 0) {
-			nextMove = directions.get(Random.uniform.nextIntFromTo(0,
-					directions.size() - 1));
+			nextMove = noUnknowns.getRandomDirection();
 
 			return new Pair<Integer, Pair<Integer, Integer>>(maxU, nextMove);
 		}
