@@ -2,6 +2,7 @@ package agents;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Stack;
 import java.util.Vector;
@@ -51,8 +52,10 @@ public abstract class ArmyUnit extends BasicAgent {
 					continue;
 				Object o = space.getObjectAt(j, i);
 				if (o == null) { // Espaco vazio, posso andar
-					int noUnknowns = map.getNumberOfReachableValues(j, i,
-							range, v);
+					ArrayList<Value> arrayV = new ArrayList<Value>();
+					arrayV.add(v);
+					int noUnknowns = map.getReachableValues(j, i,
+							range, arrayV ).size();
 
 					if (noUnknowns > max) {
 
@@ -86,22 +89,45 @@ public abstract class ArmyUnit extends BasicAgent {
 			movesDone.push(nextMove);
 		}// senao e preciso calcular o proximo passo
 		else {
+			ArrayList<Cell> unitsInSight = getUnitsInSight();
+			//se estiver sozinho
+			if (unitsInSight.isEmpty()) {
+				nextMove = getPreferedMove().getSecond();// tentar andar para
+															// frente
+				if (nextMove == null)
+					nextMove = backtraceStep();
+				else
+					movesDone.push(nextMove);
 
-			nextMove = getPreferedMove().getSecond();// tentar andar para frente
-			if (nextMove == null)
-				nextMove = backtraceStep();
-			else
-				movesDone.push(nextMove);
-
+			} else
+				nextMove = negotiateMove(unitsInSight);
 		}
-		
 		doMove(nextMove);
 
 	}
 
-	private boolean isAlone() {
-		// TODO Auto-generated method stub
-		return true;
+	private Pair<Integer, Integer> negotiateMove(ArrayList<Cell> unitsInSight) {
+		ArrayList<ArmyUnit> armyUnits= getArmyUnits(unitsInSight);
+		
+		return null;
+	}
+
+	private ArrayList<ArmyUnit> getArmyUnits(ArrayList<Cell> unitsInSight) {
+		ArrayList<ArmyUnit> armyUnits = new ArrayList<ArmyUnit>();
+		for(Cell c: unitsInSight){
+			armyUnits.add((ArmyUnit)space.getObjectAt(c.getX(), c.getY()));
+		}
+		return armyUnits;
+	}
+
+	private ArrayList<Cell> getUnitsInSight() {
+		
+		ArrayList<Value> arrayUnits = new ArrayList<Value>();
+		arrayUnits.add(Value.Captain);
+		arrayUnits.add(Value.Soldier);	
+		arrayUnits.add(Value.Robot);	
+		return (ArrayList<Cell>) map.getReachableValues(x,y,sightRange,arrayUnits);
+		
 	}
 
 	public Pair<Integer, Integer> backtraceStep() {
@@ -140,8 +166,8 @@ public abstract class ArmyUnit extends BasicAgent {
 
 			return new Pair<Integer, Pair<Integer, Integer>>(maxU, nextMove);
 		}
-		// não posso  andar para a frente. need to backtrack
-		return new Pair<Integer, Pair<Integer, Integer>>(0, null); 
+		// não posso andar para a frente. need to backtrack
+		return new Pair<Integer, Pair<Integer, Integer>>(0, null);
 
 	}
 

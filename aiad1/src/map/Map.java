@@ -1,5 +1,7 @@
 package map;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 
 import org.apache.commons.collections.BinaryHeap;
@@ -12,7 +14,7 @@ import map.Cell.Value;
 
 public class Map extends AStarMap {
 
-	private int noReachableUnkowns = 0;
+	
 	private Cell[][] map;
 	private int x;
 	private int y;
@@ -101,10 +103,10 @@ public class Map extends AStarMap {
 	}
 
 	
-
-	public int getNumberOfReachableValues(int x, int y, int sightRange, Value v) {
-
-		noReachableUnkowns = 0;
+	Collection<Cell> reachableValues;
+	public Collection<Cell> getReachableValues(int x, int y, int sightRange, Collection<Value> v) {
+		
+		reachableValues = new ArrayList<Cell>();
 		takeALook(x, y, v);
 		// Look left
 		int searched = 0;
@@ -179,12 +181,12 @@ public class Map extends AStarMap {
 
 		}
 
-		return noReachableUnkowns;
+		return reachableValues;
 
 	}
 
 	private int beamSearch(int xi, int yi, int xDir, int yDir,
-			int maxSightRange, Value v) {
+			int maxSightRange, Collection<Value> v) {
 
 		int searched = 0;
 		int x = xi + xDir;
@@ -203,11 +205,11 @@ public class Map extends AStarMap {
 		return x >= 0 && y >= 0 && x < this.x && y < this.y;
 	}
 
-	private boolean takeALook(int xS, int yS, Value v) {
+	private boolean takeALook(int xS, int yS, Collection<Value> v ) {
 
 		Cell c = map[yS][xS];
-		if (c.getValue() == v)
-			noReachableUnkowns++;
+		if (v.contains(c.getValue()) && !reachableValues.contains(c))
+			reachableValues.add(c);
 
 		else if (c.getValue() == Value.Wall)
 			return false;
