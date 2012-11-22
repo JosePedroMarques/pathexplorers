@@ -73,80 +73,86 @@ public abstract class ArmyUnit extends BasicAgent {
 	public void move() {
 		Pair<Integer, Integer> nextMove;
 		Cell exit = map.getExit();
-		if (exit != null || aStarPath != null) {// se estou a percorrer um
-												// caminho ja delineado, ou se
-												// sei onde é a saida....
-			// move to exit
-			if (aStarPath == null) {
-
+		// se estou a percorrer um caminho ja delineado, ou se sei onde é a saida....
+		if (exit != null || aStarPath != null) {
+			if (aStarPath == null) // calcular o caminho para saida
 				aStarPath = AStar.run(map.getPosition(x, y), exit, map);
-				System.out.println("VI A SAIDA, ASTARING");
-
-			}
 			AStarNode nextNode = aStarPath.removeFirst();
 			if (nextNode.equals(exit))
 				hasReachedExit = true;
 			nextMove = new Pair<Integer, Integer>(nextNode.getX(),
 					nextNode.getY());
-			movesDone.push(nextMove);
-
-		} else {
-			Pair<Integer, ArrayList<Pair<Integer, Integer>>> noUnknowns = searchSpaceFor(
-					Value.Empty, 0);
-			int maxU = noUnknowns.getFirst();
-			ArrayList<Pair<Integer, Integer>> directions = noUnknowns
-					.getSecond();
-
-			System.out.println("Empty = " + maxU);
-			if (maxU > 0) {
-				nextMove = directions.get(Random.uniform.nextIntFromTo(0,
-						directions.size() - 1));
-
-				movesDone.push(nextMove);
-			} else {
-				Pair<Integer, ArrayList<Pair<Integer, Integer>>> noEmpties = searchSpaceFor(
-						Value.Unknown, sightRange);
-				int maxE = noEmpties.getFirst();
-				ArrayList<Pair<Integer, Integer>> directionsE = noEmpties
-						.getSecond();
-
-				System.out.println("Unknown = " + maxE);
-				if (maxE > 0) {
-					nextMove = directionsE.get(Random.uniform.nextIntFromTo(0,
-							directionsE.size() - 1));
-
-					movesDone.push(nextMove);
-				} else // nao tenho nenhum caminho para a frente, altura de
-						// retornar
-				{
-					if (!movesDone.isEmpty()) // posso voltar por onde vim
-						nextMove = movesDone.pop();
-					else {
-						// encontrar o empty mais proximo e a* para la
-						System.out
-								.println("Estou encurralado, sem nada na stack");
-						nextMove = new Pair<Integer, Integer>(this.x, this.y);
-
-					}
-
-				}
+		}//senao e preciso calcular o proximo passo
+		else {
+			
+			if(isAlone() || true)
+			{
+				nextMove = getPreferedMove().getSecond();// tentar andar para frente
+				if (nextMove == null)
+					nextMove = backtraceStep();
 			}
-
 		}
+		movesDone.push(nextMove);
 		doMove(nextMove);
+
+	}
+
+	private boolean isAlone() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public Pair<Integer, Integer> backtraceStep() {
+		if (!movesDone.isEmpty()) // posso voltar por onde vim
+			return movesDone.pop();
+		else {
+			// encontrar o empty mais proximo e a* para la
+			System.out.println("Estou encurralado, sem nada na stack");
+			return new Pair<Integer, Integer>(this.x, this.y);
+		}
+
+	}
+
+	public Pair<Integer, Pair<Integer, Integer>> getPreferedMove() {
+		Pair<Integer, Integer> nextMove;
+		Pair<Integer, ArrayList<Pair<Integer, Integer>>> noEmpties = searchSpaceFor(
+				Value.Empty, 0);
+		int maxE = noEmpties.getFirst();
+		ArrayList<Pair<Integer, Integer>> directions = noEmpties.getSecond();
+
+		if (maxE > 0) {
+			nextMove = directions.get(Random.uniform.nextIntFromTo(0,
+					directions.size() - 1));
+
+			return new Pair<Integer, Pair<Integer, Integer>>(maxE, nextMove);
+		}
+
+		Pair<Integer, ArrayList<Pair<Integer, Integer>>> noUnknowns = searchSpaceFor(
+				Value.Unknown, sightRange);
+		int maxU = noUnknowns.getFirst();
+		directions = noUnknowns.getSecond();
+
+		if (maxU > 0) {
+			nextMove = directions.get(Random.uniform.nextIntFromTo(0,
+					directions.size() - 1));
+
+			return new Pair<Integer, Pair<Integer, Integer>>(maxU, nextMove);
+		}
+
+		return null; // não posso andar para a frente. need to backtrack
 
 	}
 
 	public void doMove(Pair<Integer, Integer> direction) {
 
 		Cell exit = map.getExit();
-		
-		
+
 		space.putObjectAt(this.x, this.y, null);
 		map.setPosition(this.x, this.y, new Cell(Value.Visited, this.x, this.y));
 		this.x = direction.getFirst();
 		this.y = direction.getSecond();
-		if(exit!=null && exit.getX() == direction.getFirst() && exit.getY() == direction.getSecond()){
+		if (exit != null && exit.getX() == direction.getFirst()
+				&& exit.getY() == direction.getSecond()) {
 			return;
 		}
 		space.putObjectAt(this.x, this.y, this);
@@ -241,7 +247,7 @@ public abstract class ArmyUnit extends BasicAgent {
 
 		map.setPosition(x, y, new Cell(Value.Me, x, y));
 
-		System.out.println(map);
+		// System.out.println(map);
 
 		if (aStarPath != null)// verificar se nao temos paredes no caminho
 								// planeado
@@ -297,6 +303,8 @@ public abstract class ArmyUnit extends BasicAgent {
 
 	public void broadcastMap() {
 
+		Cell oldCell = map.getPosition(x, y);
+		map.setPosition(x,y,new Cell(getValue(),x,y));
 		Vector v = space.getMooreNeighbors(x, y, getCommunicationRange(),
 				getCommunicationRange(), false);
 		for (Object o : v) {
@@ -306,6 +314,7 @@ public abstract class ArmyUnit extends BasicAgent {
 				a.receiveComm(this.map);
 			}
 		}
+		map.setPosition(x, y, oldCell);
 
 	}
 
@@ -314,12 +323,12 @@ public abstract class ArmyUnit extends BasicAgent {
 			for (int j = 0; j < map.getX(); j++)
 				if (map.getPosition(j, i).getValue() == Value.Unknown) {
 					switch (map2.getPosition(j, i).getValue()) {
-						case Me:
-							map.setPosition(j, i, new Cell(Value.Empty, j, i));
-							break;
-						default:
-							map.setPosition(j, i, map2.getPosition(j, i));
-							break;
+					case Me:
+						map.setPosition(j, i, new Cell(Value.Empty, j, i));
+						break;
+					default:
+						map.setPosition(j, i, map2.getPosition(j, i));
+						break;
 
 					}
 
@@ -335,6 +344,7 @@ public abstract class ArmyUnit extends BasicAgent {
 					&& Math.abs(y - a.getY()) <= a.getCommunicationRange();
 
 		}
+
 		return false;
 	}
 

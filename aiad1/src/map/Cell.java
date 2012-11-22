@@ -10,6 +10,8 @@ public class Cell extends AStarNode  {
 	
 	
 	
+	
+	
 	public enum Value {
 		Wall("W"),Empty("E"),Visited("V"), Captain("C"),Soldier("S"),Me("M"),Exit("X"),Unknown("U");
 		
@@ -47,6 +49,9 @@ public class Cell extends AStarNode  {
 
 	public int getIntValue(){
 		
+		
+		
+
 		switch(value){
 		case Wall : 
 			return Integer.MAX_VALUE;

@@ -15,7 +15,7 @@ public class Captain extends ArmyUnit{
 	public Captain(int x, int y,Object2DGrid space){
 		
 		super(x,y,new Color(255,0,0),space);
-		this.communicationRange = 7;
+		this.communicationRange = Math.max(space.getSizeX(),space.getSizeY());
 	}
 
 	@Override

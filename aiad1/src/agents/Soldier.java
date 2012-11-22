@@ -12,7 +12,7 @@ public class Soldier extends ArmyUnit {
 	
 	public Soldier(int x, int y,Object2DGrid space){
 		super(x,y,new Color(0,0,255),space);
-		this.communicationRange = 1;
+		this.communicationRange = 7;
 	}
 
 	@Override
@@ -21,11 +21,7 @@ public class Soldier extends ArmyUnit {
 		
 	}
 
-	@Override
-	public void move() {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 	@Override
 	public Value getValue() {

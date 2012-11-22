@@ -25,6 +25,10 @@
 	<classpathentry kind="lib" path="C:/Program Files/Repast 3/Repast J/lib/ProActive.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Repast 3/Repast J/lib/trove.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Repast 3/Repast J/lib/violinstrings-1.0.2.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/Repast 3/Repast J/repast.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Repast 3/Repast J/repast.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Program Files/Repast 3/Repast J/api/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -152,9 +152,9 @@ public class ArmyPathFinderModel extends SimModelImpl {
 					agent.lookAround();
 					agent.broadcastMap();
 					agent.move();			
-				}else {
+				}/*else {
 					agent.broadcastMap();
-				}
+				}*/
 
 			}
 		}
