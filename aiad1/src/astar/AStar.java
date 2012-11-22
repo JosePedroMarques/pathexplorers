@@ -24,8 +24,7 @@ public class AStar {
 		
 		closedList.add(initialPosition);
 		while(!openList.isEmpty()){
-			map.printAStarWorking(closedList, openList);
-			System.out.println();
+			
 			AStarNode currentNode = (AStarNode)openList.remove();
 			if(currentNode.equals(endPosition)){
 				LinkedList<AStarNode> path = getPath(currentNode);

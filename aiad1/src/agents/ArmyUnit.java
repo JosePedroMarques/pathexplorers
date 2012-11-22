@@ -73,7 +73,8 @@ public abstract class ArmyUnit extends BasicAgent {
 	public void move() {
 		Pair<Integer, Integer> nextMove;
 		Cell exit = map.getExit();
-		// se estou a percorrer um caminho ja delineado, ou se sei onde é a saida....
+		// se estou a percorrer um caminho ja delineado, ou se sei onde é a
+		// saida....
 		if (exit != null || aStarPath != null) {
 			if (aStarPath == null) // calcular o caminho para saida
 				aStarPath = AStar.run(map.getPosition(x, y), exit, map);
@@ -82,17 +83,18 @@ public abstract class ArmyUnit extends BasicAgent {
 				hasReachedExit = true;
 			nextMove = new Pair<Integer, Integer>(nextNode.getX(),
 					nextNode.getY());
-		}//senao e preciso calcular o proximo passo
+			movesDone.push(nextMove);
+		}// senao e preciso calcular o proximo passo
 		else {
-			
-			if(isAlone() || true)
-			{
-				nextMove = getPreferedMove().getSecond();// tentar andar para frente
-				if (nextMove == null)
-					nextMove = backtraceStep();
-			}
+
+			nextMove = getPreferedMove().getSecond();// tentar andar para frente
+			if (nextMove == null)
+				nextMove = backtraceStep();
+			else
+				movesDone.push(nextMove);
+
 		}
-		movesDone.push(nextMove);
+		
 		doMove(nextMove);
 
 	}
@@ -138,8 +140,8 @@ public abstract class ArmyUnit extends BasicAgent {
 
 			return new Pair<Integer, Pair<Integer, Integer>>(maxU, nextMove);
 		}
-
-		return null; // não posso andar para a frente. need to backtrack
+		// não posso  andar para a frente. need to backtrack
+		return new Pair<Integer, Pair<Integer, Integer>>(0, null); 
 
 	}
 
@@ -304,7 +306,7 @@ public abstract class ArmyUnit extends BasicAgent {
 	public void broadcastMap() {
 
 		Cell oldCell = map.getPosition(x, y);
-		map.setPosition(x,y,new Cell(getValue(),x,y));
+		map.setPosition(x, y, new Cell(getValue(), x, y));
 		Vector v = space.getMooreNeighbors(x, y, getCommunicationRange(),
 				getCommunicationRange(), false);
 		for (Object o : v) {
