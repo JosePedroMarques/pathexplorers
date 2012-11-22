@@ -3,7 +3,11 @@ package agents;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map.Entry;
+import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -38,11 +42,10 @@ public abstract class ArmyUnit extends BasicAgent {
 		movesDone.push(new Pair<Integer, Integer>(x, y));
 	}
 
-	public DirectionList searchSpaceFor(
+	public PriorityQueue<DirectionList> searchSpaceFor(
 			Value v, int range) {
+		HashMap<Integer,DirectionList> dlMap = new HashMap<Integer,DirectionList>();
 		// List of possible directions
-		int max = Integer.MIN_VALUE;
-		ArrayList<Pair<Integer, Integer>> directions = new ArrayList<Pair<Integer, Integer>>();
 
 		for (int i = Math.max(0, y - 1); i <= Math.min(y + 1, map.getY() - 1); i++)
 			for (int j = Math.max(0, x - 1); j <= Math.min(x + 1,
@@ -57,20 +60,23 @@ public abstract class ArmyUnit extends BasicAgent {
 					arrayV.add(v);
 					int noUnknowns = map
 							.getReachableValues(j, i, range, arrayV).size();
+					DirectionList dl;
+					if(dlMap.containsKey(noUnknowns))
+						dl = dlMap.get(noUnknowns);
+					else
+						dl = new DirectionList(noUnknowns,new ArrayList<Pair<Integer,Integer>>());
 
-					if (noUnknowns > max) {
-
-						max = noUnknowns;
-						directions.clear();
-						directions.add(new Pair<Integer, Integer>(j, i));
-
-					} else if (noUnknowns == max) {
-						directions.add(new Pair<Integer, Integer>(j, i));
-					}
+					dl.addDirection(new Pair<Integer, Integer>(j, i));
+					dlMap.put(noUnknowns, dl);
+					
+					
 				}
 			}
-
-		return new DirectionList(max,directions);
+		PriorityQueue<DirectionList> dlQueue = new PriorityQueue<DirectionList>();
+		for ( Entry<Integer, DirectionList> dl : dlMap.entrySet()){
+			dlQueue.add(dl.getValue());
+		}
+		return dlQueue;
 	}
 
 	public void move() {
@@ -147,7 +153,7 @@ public abstract class ArmyUnit extends BasicAgent {
 
 	public Pair<Integer, Pair<Integer, Integer>> getPreferedMove() {
 		Pair<Integer, Integer> nextMove;
-		DirectionList noEmpties = searchSpaceFor(Value.Empty, 0);
+		DirectionList noEmpties = searchSpaceFor(Value.Empty, 0).poll();
 		int maxE = noEmpties.getGainValue();
 		
 
@@ -157,7 +163,7 @@ public abstract class ArmyUnit extends BasicAgent {
 			return new Pair<Integer, Pair<Integer, Integer>>(maxE, nextMove);
 		}
 
-		DirectionList noUnknowns = searchSpaceFor(Value.Unknown, sightRange);
+		DirectionList noUnknowns = searchSpaceFor(Value.Unknown, sightRange).poll();
 		int maxU = noUnknowns.getGainValue();
 		
 		if (maxU > 0) {

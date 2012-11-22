@@ -53,6 +53,9 @@ public class DirectionList implements Comparable<DirectionList>{
 					directions.size() - 1));
 	}
 
+	public void addDirection(Pair<Integer,Integer> d){
+		directions.add(d);
+	}
 
 	@Override
 	public int compareTo(DirectionList o) {
