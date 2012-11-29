@@ -66,5 +66,18 @@ public class DirectionList implements Comparable<DirectionList>{
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+	@Override
+	public String toString(){
+
+		return gainValue + " : " + directions.toString();
+	
+	}
+
+
+	public void removeDirection(Pair<Integer, Integer> direction) {
+		directions.remove(direction);
+		
+	}
 }
  

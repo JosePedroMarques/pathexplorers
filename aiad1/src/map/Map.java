@@ -9,12 +9,10 @@ import org.apache.commons.collections.BinaryHeap;
 import astar.AStarMap;
 import astar.AStarNode;
 
-import utils.Pair;
 import map.Cell.Value;
 
 public class Map extends AStarMap {
 
-	
 	private Cell[][] map;
 	private int x;
 	private int y;
@@ -102,10 +100,11 @@ public class Map extends AStarMap {
 		return sum;
 	}
 
-	
 	Collection<Cell> reachableValues;
-	public Collection<Cell> getReachableValues(int x, int y, int sightRange, Collection<Value> v) {
-		
+
+	public Collection<Cell> getReachableValues(int x, int y, int sightRange,
+			Collection<Value> v) {
+
 		reachableValues = new ArrayList<Cell>();
 		takeALook(x, y, v);
 		// Look left
@@ -205,7 +204,7 @@ public class Map extends AStarMap {
 		return x >= 0 && y >= 0 && x < this.x && y < this.y;
 	}
 
-	private boolean takeALook(int xS, int yS, Collection<Value> v ) {
+	private boolean takeALook(int xS, int yS, Collection<Value> v) {
 
 		Cell c = map[yS][xS];
 		if (v.contains(c.getValue()) && !reachableValues.contains(c))
@@ -219,52 +218,82 @@ public class Map extends AStarMap {
 	}
 
 	@Override
-	public  LinkedList<AStarNode> getReachableNodes(AStarNode position) {
+	public LinkedList<AStarNode> getReachableNodes(AStarNode position) {
 		LinkedList<AStarNode> reachableNodes = new LinkedList<AStarNode>();
 		int x = position.getX();
 		int y = position.getY();
-		
-		if(x-1>=0 && map[y][x-1].getValue()!=Value.Wall)
-			reachableNodes.add(map[y][x-1]);
-		if(x+1<this.x && map[y][x+1].getValue()!=Value.Wall)
-			reachableNodes.add(map[y][x+1]);
-		if(y-1>=0 && map[y-1][x].getValue()!=Value.Wall)
-			reachableNodes.add(map[y-1][x]);
-		if(y+1<this.y && map[y+1][x].getValue()!=Value.Wall)
-			reachableNodes.add(map[y+1][x]);
-		
-			
-		
+
+		if (x - 1 >= 0 && map[y][x - 1].getValue() != Value.Wall)
+			reachableNodes.add(map[y][x - 1]);
+		if (x + 1 < this.x && map[y][x + 1].getValue() != Value.Wall)
+			reachableNodes.add(map[y][x + 1]);
+		if (y - 1 >= 0 && map[y - 1][x].getValue() != Value.Wall)
+			reachableNodes.add(map[y - 1][x]);
+		if (y + 1 < this.y && map[y + 1][x].getValue() != Value.Wall)
+			reachableNodes.add(map[y + 1][x]);
+
 		return reachableNodes;
 	}
 
 	@Override
 	public int calculateH(AStarNode currentPosition, AStarNode goal) {
-		
-		return 10 * (Math.abs(currentPosition.getX()-goal.getX()) + Math.abs(currentPosition.getY()-goal.getY()));
+
+		return 10 * (Math.abs(currentPosition.getX() - goal.getX()) + Math
+				.abs(currentPosition.getY() - goal.getY()));
 	}
-	
-	public void printAStarWorking(LinkedList<AStarNode> closedList, BinaryHeap openList){
+
+	public void printAStarWorking(LinkedList<AStarNode> closedList,
+			BinaryHeap openList) {
 		for (int i = 0; i < getY(); i++) {
-			for (int j = 0; j < getX(); j++){
+			for (int j = 0; j < getX(); j++) {
 				AStarNode a = map[i][j];
-				if(closedList.contains(a))
+				if (closedList.contains(a))
 					System.out.print("C ");
-				else if(openList.contains(a))
+				else if (openList.contains(a))
 					System.out.print("O ");
 				else
 					System.out.print(map[i][j].toString() + " ");
 			}
-				
+
 			System.out.println();
 		}
 	}
 
 	public Cell getExit() {
-		
+
 		return exit;
 	}
 
-	
+	public ArrayList<Cell> getCellsAtRadius(int x, int y, int radius, Value v) {
+		ArrayList<Cell> cells = new ArrayList<Cell>();
+		if(v != Value.Empty &&v != Value.Unknown )
+			System.out.println("WPOOT");
+		int maxLeft = Math.max(0, x - radius);
+		int maxRight = Math.min(getX()-1, x + radius);
+		int maxUp = Math.max(0, y - radius);
+		int maxDown = Math.min(getY()-1, y + radius);
+
+		// recolhe as da esquerda e as da direita
+		for (int i = maxUp; i < maxDown; i++) {
+			if (map[i][maxLeft].getValue() == v)
+				cells.add(map[i][maxLeft]);
+			if (map[i][maxRight].getValue() == v)
+				cells.add(map[i][maxRight]);
+
+		}
+		// recolhe as de baixo e as de cima
+		for (int i = maxLeft+1; i < maxRight-1; i++) {
+			if (map[maxUp][i].getValue() == v)
+				cells.add(map[maxUp][i]);
+			if (map[maxDown][i].getValue() == v)
+				cells.add(map[maxDown][i]);
+
+		}
+
+		/* for (int j = maxLeft; j<maxRight;j++) */
+
+		return cells;
+
+	}
 
 }
