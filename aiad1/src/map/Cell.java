@@ -8,18 +8,18 @@ import astar.AStarNode;
 
 public class Cell extends AStarNode  {
 	
-	
-	
-	
-	
+
 	public enum Value {
-		Wall("W"),Empty("E"),Visited("V"), Captain("C"),Soldier("S"),Me("M"),Exit("X"),Unknown("U");
+		Wall("W"),Empty("E"),Visited("V"), Captain("C"),Soldier("S"),Me("M"),Exit("X"),Unknown("U"),Robot("R");
 		
 		private final String text;
 
 		  Value(String text) {
 		    this.text = text;
 		  }
+		  
+		  
+		 
 		  @Override
 		  public String toString() {
 		    return this.text;
@@ -74,6 +74,12 @@ public class Cell extends AStarNode  {
 	@Override
 	public String toString(){
 		return this.value.toString();
+	}
+	
+	@Override
+	public boolean equals(Object that){
+		AStarNode c = (AStarNode)that;
+		return this.x == c.getX() && this.y == c.getY();
 	}
 	
 	

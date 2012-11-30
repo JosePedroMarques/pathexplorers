@@ -1,5 +1,7 @@
 package map;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 
 import org.apache.commons.collections.BinaryHeap;
@@ -7,12 +9,10 @@ import org.apache.commons.collections.BinaryHeap;
 import astar.AStarMap;
 import astar.AStarNode;
 
-import utils.Pair;
 import map.Cell.Value;
 
 public class Map extends AStarMap {
 
-	private int noReachableUnkowns = 0;
 	private Cell[][] map;
 	private int x;
 	private int y;
@@ -100,11 +100,12 @@ public class Map extends AStarMap {
 		return sum;
 	}
 
-	
+	Collection<Cell> reachableValues;
 
-	public int getNumberOfReachableValues(int x, int y, int sightRange, Value v) {
+	public Collection<Cell> getReachableValues(int x, int y, int sightRange,
+			Collection<Value> v) {
 
-		noReachableUnkowns = 0;
+		reachableValues = new ArrayList<Cell>();
 		takeALook(x, y, v);
 		// Look left
 		int searched = 0;
@@ -179,12 +180,12 @@ public class Map extends AStarMap {
 
 		}
 
-		return noReachableUnkowns;
+		return reachableValues;
 
 	}
 
 	private int beamSearch(int xi, int yi, int xDir, int yDir,
-			int maxSightRange, Value v) {
+			int maxSightRange, Collection<Value> v) {
 
 		int searched = 0;
 		int x = xi + xDir;
@@ -203,11 +204,11 @@ public class Map extends AStarMap {
 		return x >= 0 && y >= 0 && x < this.x && y < this.y;
 	}
 
-	private boolean takeALook(int xS, int yS, Value v) {
+	private boolean takeALook(int xS, int yS, Collection<Value> v) {
 
 		Cell c = map[yS][xS];
-		if (c.getValue() == v)
-			noReachableUnkowns++;
+		if (v.contains(c.getValue()) && !reachableValues.contains(c))
+			reachableValues.add(c);
 
 		else if (c.getValue() == Value.Wall)
 			return false;
@@ -217,52 +218,92 @@ public class Map extends AStarMap {
 	}
 
 	@Override
-	public  LinkedList<AStarNode> getReachableNodes(AStarNode position) {
+	public LinkedList<AStarNode> getReachableNodes(AStarNode position) {
 		LinkedList<AStarNode> reachableNodes = new LinkedList<AStarNode>();
 		int x = position.getX();
 		int y = position.getY();
-		
-		if(x-1>=0 && map[y][x-1].getValue()!=Value.Wall)
-			reachableNodes.add(map[y][x-1]);
-		if(x+1<this.x && map[y][x+1].getValue()!=Value.Wall)
-			reachableNodes.add(map[y][x+1]);
-		if(y-1>=0 && map[y-1][x].getValue()!=Value.Wall)
-			reachableNodes.add(map[y-1][x]);
-		if(y+1<this.y && map[y+1][x].getValue()!=Value.Wall)
-			reachableNodes.add(map[y+1][x]);
-		
-			
-		
+
+		if (x - 1 >= 0 && canMaybeGoInto(x-1,y))
+			reachableNodes.add(map[y][x - 1]);
+		if (x + 1 < this.x && canMaybeGoInto(x+1,y))
+			reachableNodes.add(map[y][x + 1]);
+		if (y - 1 >= 0 && canMaybeGoInto(x,y-1))
+			reachableNodes.add(map[y - 1][x]);
+		if (y + 1 < this.y && canMaybeGoInto(x,y+1))
+			reachableNodes.add(map[y + 1][x]);
+
 		return reachableNodes;
+	}
+
+	public boolean canGoInto(int x, int y) {
+		// TODO Auto-generated method stub
+		return map[y][x].getValue() == Value.Empty || map[y][x].getValue() == Value.Visited || map[y][x].getValue() == Value.Exit ;
+	}
+	
+	public boolean canMaybeGoInto(int x, int y) {
+		// TODO Auto-generated method stub
+		return map[y][x].getValue() != Value.Wall;
 	}
 
 	@Override
 	public int calculateH(AStarNode currentPosition, AStarNode goal) {
-		
-		return 10 * (Math.abs(currentPosition.getX()-goal.getX()) + Math.abs(currentPosition.getY()-goal.getY()));
+
+		return 10 * (Math.abs(currentPosition.getX() - goal.getX()) + Math
+				.abs(currentPosition.getY() - goal.getY()));
 	}
-	
-	public void printAStarWorking(LinkedList<AStarNode> closedList, BinaryHeap openList){
+
+	public void printAStarWorking(LinkedList<AStarNode> closedList,
+			BinaryHeap openList) {
 		for (int i = 0; i < getY(); i++) {
-			for (int j = 0; j < getX(); j++){
+			for (int j = 0; j < getX(); j++) {
 				AStarNode a = map[i][j];
-				if(closedList.contains(a))
+				if (closedList.contains(a))
 					System.out.print("C ");
-				else if(openList.contains(a))
+				else if (openList.contains(a))
 					System.out.print("O ");
 				else
 					System.out.print(map[i][j].toString() + " ");
 			}
-				
+
 			System.out.println();
 		}
 	}
 
 	public Cell getExit() {
-		
+
 		return exit;
 	}
 
-	
+	public ArrayList<Cell> getCellsAtRadius(int x, int y, int radius, Value v) {
+		ArrayList<Cell> cells = new ArrayList<Cell>();
+		if(v != Value.Empty &&v != Value.Unknown )
+			System.out.println("WPOOT");
+		int maxLeft = Math.max(0, x - radius);
+		int maxRight = Math.min(getX()-1, x + radius);
+		int maxUp = Math.max(0, y - radius);
+		int maxDown = Math.min(getY()-1, y + radius);
+
+		// recolhe as da esquerda e as da direita
+		for (int i = maxUp; i <= maxDown; i++) {
+			if (map[i][maxLeft].getValue() == v)
+				cells.add(map[i][maxLeft]);
+			if (map[i][maxRight].getValue() == v)
+				cells.add(map[i][maxRight]);
+
+		}
+		// recolhe as de baixo e as de cima
+		for (int i = maxLeft+1; i < maxRight-1; i++) {
+			if (map[maxUp][i].getValue() == v)
+				cells.add(map[maxUp][i]);
+			if (map[maxDown][i].getValue() == v)
+				cells.add(map[maxDown][i]);
+
+		}
+
+		/* for (int j = maxLeft; j<maxRight;j++) */
+
+		return cells;
+
+	}
 
 }

@@ -105,19 +105,9 @@ public class ArmyPathFinderModel extends SimModelImpl {
 
 	public void buildModel() {
 		agentList = new ArrayList<ArmyUnit>();
-		readMap("textfile2.txt");
+		readMap("mapa3.txt");
 
-		/*
-		 * for (int i = 0; i<numberOfAgents; i++) { int x, y; do { x =
-		 * Random.uniform.nextIntFromTo(0, space.getSizeX() - 1); y =
-		 * Random.uniform.nextIntFromTo(0, space.getSizeY() - 1); } while
-		 * (space.getObjectAt(x, y) != null); Color color = new
-		 * Color(Random.uniform.nextIntFromTo(0,255),
-		 * Random.uniform.nextIntFromTo(0,255),
-		 * Random.uniform.nextIntFromTo(0,255)); ColorPickingAgent agent = new
-		 * ColorPickingAgent(x, y, color, space); space.putObjectAt(x, y,
-		 * agent); agentList.add(agent); }
-		 */
+	
 	}
 
 	private void buildDisplay() {
@@ -142,7 +132,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 
 			// shuffle agents
 			SimUtilities.shuffle(agentList);
-
+			System.out.println("Another it");
 			// iterate through all agents
 			for (int i = 0; i < agentList.size(); i++) {
 				ArmyUnit agent = (ArmyUnit) agentList.get(i);
@@ -150,11 +140,12 @@ public class ArmyPathFinderModel extends SimModelImpl {
 				
 				if (!agent.hasReachedExit()) {
 					agent.lookAround();
+					agent.move();		
 					agent.broadcastMap();
-					agent.move();			
-				}/*else {
-					agent.broadcastMap();
-				}*/
+					
+				
+				}
+				
 
 			}
 		}
@@ -165,6 +156,37 @@ public class ArmyPathFinderModel extends SimModelImpl {
 		SimInit init = new SimInit();
 		init.loadModel(new ArmyPathFinderModel(), null, false);
 
+	}
+
+	public void updateGlobalMap(Map map2,Value value) {
+		for (int i = 0; i < map.getY(); i++)
+			for (int j = 0; j < map.getX(); j++)
+				if (map.getPosition(j, i).getValue() == Value.Unknown) {
+					switch (map2.getPosition(j, i).getValue()) {
+					case Me:
+						map.setPosition(j, i, new Cell(value, j, i));
+						break;
+					default:
+						map.setPosition(j, i, map2.getPosition(j, i));
+						break;
+
+					}
+
+				} else if (map.getPosition(j, i).getValue() == Value.Empty) {
+					switch (map2.getPosition(j, i).getValue()) {
+					case Me:
+						map.setPosition(j, i, new Cell(value, j, i));
+						break;
+					case Visited:
+						map.setPosition(j, i, new Cell(Value.Visited, j, i));
+						break;
+					default:
+						break;
+
+					}
+
+				}
+		
 	}
 
 	public void readMap(String filename) {
