@@ -223,16 +223,26 @@ public class Map extends AStarMap {
 		int x = position.getX();
 		int y = position.getY();
 
-		if (x - 1 >= 0 && map[y][x - 1].getValue() != Value.Wall)
+		if (x - 1 >= 0 && canMaybeGoInto(x-1,y))
 			reachableNodes.add(map[y][x - 1]);
-		if (x + 1 < this.x && map[y][x + 1].getValue() != Value.Wall)
+		if (x + 1 < this.x && canMaybeGoInto(x+1,y))
 			reachableNodes.add(map[y][x + 1]);
-		if (y - 1 >= 0 && map[y - 1][x].getValue() != Value.Wall)
+		if (y - 1 >= 0 && canMaybeGoInto(x,y-1))
 			reachableNodes.add(map[y - 1][x]);
-		if (y + 1 < this.y && map[y + 1][x].getValue() != Value.Wall)
+		if (y + 1 < this.y && canMaybeGoInto(x,y+1))
 			reachableNodes.add(map[y + 1][x]);
 
 		return reachableNodes;
+	}
+
+	public boolean canGoInto(int x, int y) {
+		// TODO Auto-generated method stub
+		return map[y][x].getValue() == Value.Empty || map[y][x].getValue() == Value.Visited || map[y][x].getValue() == Value.Exit ;
+	}
+	
+	public boolean canMaybeGoInto(int x, int y) {
+		// TODO Auto-generated method stub
+		return map[y][x].getValue() != Value.Wall;
 	}
 
 	@Override
@@ -274,7 +284,7 @@ public class Map extends AStarMap {
 		int maxDown = Math.min(getY()-1, y + radius);
 
 		// recolhe as da esquerda e as da direita
-		for (int i = maxUp; i < maxDown; i++) {
+		for (int i = maxUp; i <= maxDown; i++) {
 			if (map[i][maxLeft].getValue() == v)
 				cells.add(map[i][maxLeft]);
 			if (map[i][maxRight].getValue() == v)
