@@ -105,7 +105,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 
 	public void buildModel() {
 		agentList = new ArrayList<ArmyUnit>();
-		readMap("mapa4.txt");
+		readMap("mapa3.txt");
 
 	
 	}
