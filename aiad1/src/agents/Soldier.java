@@ -10,9 +10,9 @@ import uchicago.src.sim.space.Object2DGrid;
 public class Soldier extends ArmyUnit {
 
 	
-	public Soldier(int x, int y,Object2DGrid space){
+	public Soldier(int x, int y,Object2DGrid space, int communication_Range){
 		super(x,y,new Color(0,0,255),space);
-		this.communicationRange = 7;
+		this.communicationRange = communication_Range;
 	}
 
 	@Override

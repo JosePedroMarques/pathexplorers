@@ -32,7 +32,7 @@ public class ColorPickingModel extends SimModelImpl {
 	private Hashtable<Color, Integer> agentColors;
 
 	public ColorPickingModel() {
-		this.numberOfAgents = 100;
+		this.numberOfAgents = 99;
 		this.spaceSize = 100;
 		this.movingMode = MovingMode.Walk;
 	}

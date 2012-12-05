@@ -24,6 +24,9 @@ import utils.DirectionList;
 import utils.NegotiationOffer;
 import utils.Pair;
 
+
+import pathfinder.*;
+
 public abstract class ArmyUnit extends BasicAgent {
 
 	private static final int VISITEDPENALTY = 10;
