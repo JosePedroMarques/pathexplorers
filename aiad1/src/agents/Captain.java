@@ -22,6 +22,7 @@ public class Captain extends ArmyUnit{
 	public void draw(SimGraphics g) {
 		g.drawFastCircle(color);
 		
+		
 	}
 
 	

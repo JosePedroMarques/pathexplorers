@@ -26,6 +26,7 @@ import utils.Pair;
 
 public abstract class ArmyUnit extends BasicAgent {
 
+	private static final int VISITEDPENALTY = 10;
 	protected int communicationRange = 20;
 	int sightRange = 5;
 	protected Object2DGrid space;
@@ -35,8 +36,8 @@ public abstract class ArmyUnit extends BasicAgent {
 	protected boolean hasReachedExit = false;
 	private final int EMPTYWEIGHT = 2;
 	private final int UNKOWNWEIGHT = 1;
-	private final int DISPERSIONWEIGHT = 5;
-	boolean DEBUG = true;
+	private final int DISPERSIONWEIGHT = 3;
+	boolean DEBUG = false;
 
 	public ArmyUnit(int x, int y, Color color, Object2DGrid space) {
 
@@ -59,20 +60,22 @@ public abstract class ArmyUnit extends BasicAgent {
 				int xMove = x - j;
 				if (xMove == yMove || xMove == -yMove)
 					continue;
-				Object o = space.getObjectAt(j, i);
-				if (o == null) { // Espaco vazio, posso andar
+				
+				if (map.canGoInto(j, i)) { // Espaco vazio, posso andar
 
 					int noUnknowns = map.getReachableValues(j, i, range, v)
 							.size();
+					int penalty = map.getPosition(j, i).getValue() == Value.Visited ? VISITEDPENALTY:0;
 					DirectionList dl;
-					if (dlMap.containsKey(noUnknowns))
-						dl = dlMap.get(noUnknowns);
+					int value = noUnknowns-penalty;
+					if (dlMap.containsKey(value))
+						dl = dlMap.get(value);
 					else
-						dl = new DirectionList(noUnknowns,
+						dl = new DirectionList(value,
 								new ArrayList<Pair<Integer, Integer>>());
 
 					dl.addDirection(new Pair<Integer, Integer>(j, i));
-					dlMap.put(noUnknowns, dl);
+					dlMap.put(value, dl);
 
 				}
 			}
@@ -110,8 +113,9 @@ public abstract class ArmyUnit extends BasicAgent {
 		else {
 			//ArrayList<Cell> unitsInSight = getUnitsInSight();
 			PriorityQueue<DirectionList> moves = getOrderedListOfMoves();
-
-			if (moves == null)
+			//se o meu melhor movimento tem ganho negativo
+			//e preciso andar para tras
+			if (moves== null || moves.peek().getGainValue() <0 )
 				nextMove = backtraceStep();
 			else {
 				// se nao estiver sozinho
@@ -208,35 +212,74 @@ public abstract class ArmyUnit extends BasicAgent {
 
 	public PriorityQueue<DirectionList> getOrderedListOfMoves() {
 
+		if(x==36&&y==12)
+			System.out.println("0");
 		// ja tenho algo planeado, ignoro a negociação
 		if (aStarPath != null)
 			return null;
 		ArrayList<Value> obj = new ArrayList<Value>();
 		obj.add(Value.Empty);
-		PriorityQueue<DirectionList> dirEmpties = searchSpaceFor(obj, 0);
-		for (DirectionList dl : dirEmpties)
-			dl.setGainValue(dl.getGainValue() * EMPTYWEIGHT);
+		PriorityQueue<DirectionList> dirEmpties = searchSpaceFor(obj, sightRange);
+		
+		if(DEBUG){
+			
+			System.out.println("THIS IS MY DIRECTION LIST - EMPTY");
+			System.out.println(dirEmpties);
+		}
 		obj.clear();
 		obj.add(Value.Unknown);
-		PriorityQueue<DirectionList> dirUnknowns = searchSpaceFor(obj, 0);
-		for (DirectionList dl : dirUnknowns)
-			dl.setGainValue(dl.getGainValue() * UNKOWNWEIGHT);
-		dirEmpties.addAll(dirUnknowns);
+		PriorityQueue<DirectionList> dirUnknowns = searchSpaceFor(obj, sightRange);
+		
+		if(DEBUG){
+			
+			System.out.println("THIS IS MY DIRECTION LIST - UNKNOWN");
+			System.out.println(dirUnknowns);
+		}
+		
 		obj.clear();
 		obj.add(Value.Soldier);
 		obj.add(Value.Captain);
 		obj.add(Value.Robot);
-		PriorityQueue<DirectionList> dirDisperse = searchSpaceFor(obj, 0);
-		for (DirectionList dl : dirDisperse)
-			dl.setGainValue(dl.getGainValue() * DISPERSIONWEIGHT);
-		dirEmpties.addAll(dirDisperse);
-
+		PriorityQueue<DirectionList> dirDisperse = searchSpaceFor(obj, 1);
+		if(DEBUG){
+			
+			System.out.println("THIS IS MY DIRECTION LIST - DISPERSE");
+			System.out.println(dirDisperse);
+		}
+		PriorityQueue<DirectionList> dirDisperseInv = new PriorityQueue<DirectionList>();
+		if(!dirDisperse.isEmpty()){
+		
+			int max = Math.max(dirDisperse.peek().getGainValue(),Math.max(dirEmpties.peek().getGainValue(),dirUnknowns.peek().getGainValue()));
+			for (DirectionList dl : dirDisperse){
+				int currentValue = dl.getGainValue();
+				int inverseValue = currentValue < 0 ? currentValue: max-currentValue;
+				dl.setGainValue(inverseValue);
+				dirDisperseInv.add(dl);
+			}
+			if(DEBUG){
+				
+				System.out.println("THIS IS MY DIRECTION LIST - DISPERSE INV");
+				System.out.println(dirDisperseInv);
+			}
+			
+		}
 		// ja nao posso andar para a frente, preciso de andar para tras
 
 		if (dirEmpties.isEmpty() || dirEmpties.peek().getGainValue() == 0)
 			return null;
 		// posso andar para a frente, com estas prioridades
-		return dirEmpties;
+	
+		PriorityQueue<DirectionList> allDirs = new PriorityQueue<DirectionList>();
+		for (DirectionList dl : dirEmpties)
+			dl.setGainValue(dl.getGainValue() * EMPTYWEIGHT);
+		for (DirectionList dl : dirUnknowns)
+			dl.setGainValue(dl.getGainValue() * UNKOWNWEIGHT);
+		for (DirectionList dl : dirDisperseInv)
+			dl.setGainValue(dl.getGainValue() * DISPERSIONWEIGHT);
+		allDirs.addAll(dirEmpties);
+		allDirs.addAll(dirUnknowns);
+		allDirs.addAll(dirDisperseInv);
+		return allDirs;
 	}
 
 	private ArrayList<ArmyUnit> getArmyUnits(ArrayList<Cell> unitsInSight) {

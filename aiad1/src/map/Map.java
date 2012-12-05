@@ -105,6 +105,8 @@ public class Map extends AStarMap {
 	public Collection<Cell> getReachableValues(int x, int y, int sightRange,
 			Collection<Value> v) {
 
+	
+		
 		reachableValues = new ArrayList<Cell>();
 		takeALook(x, y, v);
 		// Look left
@@ -114,14 +116,17 @@ public class Map extends AStarMap {
 		int maxSightRangeUp = sightRange;
 		int maxSightRangeBottom = sightRange;
 		int maxSightRange = sightRange;
-		while (xS > 0 && searched < maxSightRange) {
+		while (xS > 0 && searched <= maxSightRange) {
 
 			maxSightRangeUp = beamSearch(xS, yS, 0, -1, maxSightRangeUp, v);
 			maxSightRangeBottom = beamSearch(xS, yS, 0, 1, maxSightRangeBottom,
 					v);
 			searched++;
-			if (!takeALook(xS, yS, v))
+			if (!takeALook(xS, yS, v)){
 				maxSightRange = searched;
+				break;
+				
+			}
 			xS--;
 
 		}
@@ -132,14 +137,16 @@ public class Map extends AStarMap {
 		maxSightRangeUp = sightRange;
 		maxSightRangeBottom = sightRange;
 		maxSightRange = sightRange;
-		while (xS < getX() && searched < maxSightRange) {
+		while (xS < getX() && searched <= maxSightRange) {
 
 			maxSightRangeUp = beamSearch(xS, yS, 0, -1, maxSightRangeUp, v);
 			maxSightRangeBottom = beamSearch(xS, yS, 0, 1, maxSightRangeBottom,
 					v);
 			searched++;
-			if (!takeALook(xS, yS, v))
+			if (!takeALook(xS, yS, v)){
 				maxSightRange = searched;
+				break;
+			}
 			xS++;
 
 		}
@@ -196,7 +203,7 @@ public class Map extends AStarMap {
 			searched++;
 
 		}
-		return searched + 1;
+		return Math.min(searched + 1,maxSightRange);
 
 	}
 

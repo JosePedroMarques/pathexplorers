@@ -105,7 +105,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 
 	public void buildModel() {
 		agentList = new ArrayList<ArmyUnit>();
-		readMap("mapa3.txt");
+		readMap("mapa4.txt");
 
 	
 	}
@@ -132,7 +132,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 
 			// shuffle agents
 			SimUtilities.shuffle(agentList);
-			System.out.println("Another it");
+			//System.out.println("Another it");
 			// iterate through all agents
 			for (int i = 0; i < agentList.size(); i++) {
 				ArmyUnit agent = (ArmyUnit) agentList.get(i);
