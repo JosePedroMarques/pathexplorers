@@ -1,4 +1,7 @@
 	package agents;
+ 
+    
+	
 
 	import java.awt.Color;
 
@@ -12,10 +15,10 @@
 
     int live;
 		
-		public Robot(int x, int y,Object2DGrid space){
+		public Robot(int x, int y,Object2DGrid space, int live_robot ){
 			super(x,y,new Color(119,136,153),space);
 			this.communicationRange = 1;
-			this.live = 200;
+			this.live = live_robot;
 		}
 
 		@Override

@@ -44,10 +44,15 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	private int ySize;
 	private Map map;
 
-	private int numberOfAgents;
+	private int live_robot, EMPTYWEIGHT, UNKOWNWEIGHT, DISPERSIONWEIGHT, communication_Range;
 
 	public ArmyPathFinderModel() {
-		this.numberOfAgents = 100;
+		this.live_robot = 100;
+		this.EMPTYWEIGHT = 1;
+		this.UNKOWNWEIGHT = 2;
+		this.DISPERSIONWEIGHT = 3;
+		this.communication_Range = 3;
+		
 
 	}
 
@@ -56,20 +61,54 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	}
 
 	public String[] getInitParam() {
-		return new String[] { "numberOfAgents" };
+		return new String[] { "live_robot", "EMPTYWEIGHT", "UNKOWNWEIGHT", "DISPERSIONWEIGHT", "communication_Range" };
 	}
 
 	public Schedule getSchedule() {
 		return schedule;
 	}
 
-	public int getNumberOfAgents() {
-		return numberOfAgents;
+	public int getlive_robot() {
+		return live_robot;
 	}
 
-	public void setNumberOfAgents(int numberOfAgents) {
-		this.numberOfAgents = numberOfAgents;
+	public void setlive_robot(int live_robot) {
+		this.live_robot = live_robot;
 	}
+	
+	
+	public int getEMPTYWEIGHT() {
+		return EMPTYWEIGHT;
+	}
+
+	public void setEMPTYWEIGHT(int EMPTYWEIGHT) {
+		this.EMPTYWEIGHT = EMPTYWEIGHT;
+	}
+	
+	public int getUNKOWNWEIGHT() {
+		return EMPTYWEIGHT;
+	}
+
+	public void setUNKOWNWEIGHT(int UNKOWNWEIGHT) {
+		this.UNKOWNWEIGHT = UNKOWNWEIGHT;
+	}
+	
+	public int getDISPERSIONWEIGHT() {
+		return EMPTYWEIGHT;
+	}
+
+	public void setDISPERSIONWEIGHT(int DISPERSIONWEIGHT) {
+		this.DISPERSIONWEIGHT = DISPERSIONWEIGHT;
+	}
+	
+	public int getcommunication_Range() {
+		return communication_Range;
+	}
+
+	public void setcommunication_Range(int communication_Range) {
+		this.communication_Range = communication_Range;
+	}
+	
 
 	public void setup() {
 		schedule = new Schedule();
@@ -231,7 +270,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 						// map.setPosition(j, i, new Cell(Value.Wall,j,i));
 						break;
 					case SOLDIER:
-						Soldier s = new Soldier(j, i, space);
+						Soldier s = new Soldier(j, i, space, communication_Range);
 						agentList.add(s);
 						space.putObjectAt(j, i, s);
 						map.setPosition(j, i, new Cell(Value.Soldier, j, i));
@@ -243,7 +282,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 						map.setPosition(j, i, new Cell(Value.Captain, j, i));
 						break;
 					case ROBOT:
-						Robot r = new Robot(j, i, space);
+						Robot r = new Robot(j, i, space, live_robot);
 						agentList.add(r);
 						space.putObjectAt(j, i, r);
 						map.setPosition(j, i, new Cell(Value.Robot, j, i));
