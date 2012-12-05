@@ -44,7 +44,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	private int ySize;
 	private Map map;
 
-	private int live_robot, EMPTYWEIGHT, UNKOWNWEIGHT, DISPERSIONWEIGHT, communication_Range;
+	private int live_robot, EMPTYWEIGHT, UNKOWNWEIGHT, DISPERSIONWEIGHT, communication_Range, sight_Range;
 
 	public ArmyPathFinderModel() {
 		this.live_robot = 100;
@@ -52,6 +52,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 		this.UNKOWNWEIGHT = 2;
 		this.DISPERSIONWEIGHT = 3;
 		this.communication_Range = 3;
+		this.sight_Range = 4;
 		
 
 	}
@@ -61,7 +62,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	}
 
 	public String[] getInitParam() {
-		return new String[] { "live_robot", "EMPTYWEIGHT", "UNKOWNWEIGHT", "DISPERSIONWEIGHT", "communication_Range" };
+		return new String[] { "live_robot", "EMPTYWEIGHT", "UNKOWNWEIGHT", "DISPERSIONWEIGHT", "communication_Range", "sight_Range" };
 	}
 
 	public Schedule getSchedule() {
@@ -86,7 +87,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	}
 	
 	public int getUNKOWNWEIGHT() {
-		return EMPTYWEIGHT;
+		return UNKOWNWEIGHT;
 	}
 
 	public void setUNKOWNWEIGHT(int UNKOWNWEIGHT) {
@@ -94,7 +95,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	}
 	
 	public int getDISPERSIONWEIGHT() {
-		return EMPTYWEIGHT;
+		return DISPERSIONWEIGHT;
 	}
 
 	public void setDISPERSIONWEIGHT(int DISPERSIONWEIGHT) {
@@ -107,6 +108,14 @@ public class ArmyPathFinderModel extends SimModelImpl {
 
 	public void setcommunication_Range(int communication_Range) {
 		this.communication_Range = communication_Range;
+	}
+	
+	public int getsight_Range() {
+		return sight_Range;
+	}
+
+	public void setsight_Range(int sight_Range) {
+		this.sight_Range = sight_Range;
 	}
 	
 
