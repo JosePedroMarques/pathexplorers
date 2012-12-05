@@ -25,6 +25,7 @@ import agents.BasicAgent;
 import agents.Captain;
 import agents.Exit;
 import agents.Soldier;
+import agents.Robot;
 import agents.Wall;
 import astar.AStar;
 import astar.AStarNode;
@@ -33,6 +34,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	private static final char WALL = '#';
 	private static final char SOLDIER = 's';
 	private static final char CAPTAIN = 'c';
+	private static final char ROBOT = 'r';
 	private static final char EXIT = 'E';
 	private ArrayList<ArmyUnit> agentList;
 	private Schedule schedule;
@@ -239,6 +241,12 @@ public class ArmyPathFinderModel extends SimModelImpl {
 						agentList.add(c);
 						space.putObjectAt(j, i, c);
 						map.setPosition(j, i, new Cell(Value.Captain, j, i));
+						break;
+					case ROBOT:
+						Robot r = new Robot(j, i, space);
+						agentList.add(r);
+						space.putObjectAt(j, i, r);
+						map.setPosition(j, i, new Cell(Value.Robot, j, i));
 						break;
 					case EXIT:
 						Exit e = new Exit(j, i);
