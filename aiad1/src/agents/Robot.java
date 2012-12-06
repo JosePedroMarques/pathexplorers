@@ -34,14 +34,8 @@ import utils.Pair;
 		public void move() {
 			live-=1;
 			if (live > 0)
-			super.move();
-			
-				
-				
-			   
-				
-			
-			
+				super.move();
+	
 		}
 
 		@Override

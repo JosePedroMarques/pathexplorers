@@ -5,14 +5,15 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Vector;
-
-import colorpicking.ColorPickingModel.MovingMode;
 
 import map.Cell;
 import map.Cell.Value;
 import map.Map;
 import uchicago.src.reflector.ListPropertyDescriptor;
+import uchicago.src.sim.analysis.OpenSequenceGraph;
+import uchicago.src.sim.analysis.Sequence;
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
@@ -43,7 +44,10 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	private int ySize;
 	private Map map;
 	private Config conf;
-	private String filename;
+	private OpenSequenceGraph plot;
+	private OpenSequenceGraph plot2;
+
+
 	public enum MapName {
 		Map1("mapa1.txt"),Map2("mapa2.txt"),Map3("mapa3.txt"), Map4("mapa4.txt"),Map5("mapa5.txt");
 		
@@ -195,6 +199,43 @@ public class ArmyPathFinderModel extends SimModelImpl {
 
 		dsurf.addDisplayableProbeable(display, "Agents Space");
 		dsurf.display();
+		
+		// graph
+		if (plot != null) plot.dispose();
+		plot = new OpenSequenceGraph("Map Explored", this);
+		plot.setAxisTitles("time", "n");
+		// plot number of different existing colors
+		plot.addSequence("Number of global Unknowns", new Sequence() {
+			public double getSValue() {
+				return map.getNumberOf(Value.Unknown);
+			}
+		});
+		// plot number of agents with the most abundant color
+		plot.addSequence("Number of global Visited", new Sequence() {
+			public double getSValue() {
+				return map.getNumberOf(Value.Visited);
+			}
+		});
+		
+		plot.addSequence("Number of global Visited + Empty", new Sequence() {
+			public double getSValue() {
+				return map.getNumberOf(Value.Visited) + map.getNumberOf(Value.Empty);
+			}
+		});
+		plot.display();
+		
+		if (plot2 != null) plot2.dispose();
+		plot2 = new OpenSequenceGraph("Agents", this);
+		plot2.setAxisTitles("time", "n");
+		// plot number of different existing colors
+		plot2.addSequence("Number of global Agents in the maze", new Sequence() {
+			public double getSValue() {
+				return agentList.size();
+			}
+		});
+		plot2.display();
+		
+		
 
 	}
 
@@ -202,7 +243,8 @@ public class ArmyPathFinderModel extends SimModelImpl {
 		schedule.scheduleActionBeginning(0, new MainAction());
 		schedule.scheduleActionAtInterval(1, dsurf, "updateDisplay",
 				Schedule.LAST);
-		// schedule.scheduleActionAtInterval(1, plot, "step", Schedule.LAST);
+	    schedule.scheduleActionAtInterval(1, plot, "step", Schedule.LAST);
+	    schedule.scheduleActionAtInterval(1, plot2, "step", Schedule.LAST);
 	}
 
 	class MainAction extends BasicAction {
@@ -221,6 +263,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 					agent.lookAround();
 					agent.move();		
 					agent.broadcastMap();
+					updateGlobalMap(agent.getMap(), agent.getValue());
 					
 				
 				}else
@@ -266,6 +309,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 					}
 
 				}
+
 		
 	}
 

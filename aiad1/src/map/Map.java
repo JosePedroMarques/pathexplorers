@@ -86,16 +86,13 @@ public class Map extends AStarMap {
 		this.y = y;
 	}
 
-	public int getNumberOfUnknowns(int x, int y, int range) {
+	public int getNumberOf(Value v) {
 		int sum = 0;
-		for (int i = Math.max(0, y - range); i <= Math.min(y + range,
-				this.y - 1); i++)
-			for (int j = Math.max(0, x - range); j <= Math.min(x + range,
-					this.x - 1); j++)
-				if (map[i][j].getValue() == Value.Unknown)
-					sum += 2;
-				else if (map[i][j].getValue() == Value.Empty)
-					sum++;
+		for (int i = 0; i <this.y; i++)
+			for (int j = 0; j < this.x; j++)
+				if (map[i][j].getValue() ==v)
+					sum ++;
+				
 
 		return sum;
 	}
