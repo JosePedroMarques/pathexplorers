@@ -51,9 +51,22 @@ import utils.Pair;
 
 		@Override
 		protected Pair<Integer, Integer> onExitFoundAction(AStarNode nextNode) {
-			// TODO Auto-generated method stub
+			if(hasReachedExit){
+				if(hasCommunicatedWithCaptain){
+					hasExited = true;
+					return  new Pair<Integer, Integer>(nextNode.getX(),
+							nextNode.getY());
+				}
+				aStarPath.clear();
+				aStarPath.push(nextNode);
+				waitTime++;
+				return  new Pair<Integer, Integer>(x,
+							y);
+			}
 			return  new Pair<Integer, Integer>(nextNode.getX(),
 					nextNode.getY());
+			
+		
 		}
 		
 	}

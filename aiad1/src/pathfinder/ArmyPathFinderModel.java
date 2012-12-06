@@ -217,9 +217,14 @@ public class ArmyPathFinderModel extends SimModelImpl {
 			}
 		});
 		
-		plot.addSequence("Number of global Visited + Empty", new Sequence() {
+		plot.addSequence("Number of global Empty", new Sequence() {
 			public double getSValue() {
-				return map.getNumberOf(Value.Visited) + map.getNumberOf(Value.Empty);
+				return map.getNumberOf(Value.Empty);
+			}
+		});
+		plot.addSequence("Number of known Unreacheable", new Sequence() {
+			public double getSValue() {
+				return map.getNumberOf(Value.Unreachable);
 			}
 		});
 		plot.display();
@@ -228,9 +233,19 @@ public class ArmyPathFinderModel extends SimModelImpl {
 		plot2 = new OpenSequenceGraph("Agents", this);
 		plot2.setAxisTitles("time", "n");
 		// plot number of different existing colors
-		plot2.addSequence("Number of global Agents in the maze", new Sequence() {
+		plot2.addSequence("Agents in the maze", new Sequence() {
 			public double getSValue() {
-				return agentList.size();
+				return Math.max(agentList.size()-map.getNumberOf(Value.Robot),0);
+			}
+		});
+		
+		plot2.addSequence("Knows exit location", new Sequence() {
+			public double getSValue() {
+				int n = 0;
+				for(ArmyUnit a : agentList)
+					if(a.knowsExitLocation())
+						n++;
+				return n;
 			}
 		});
 		plot2.display();
@@ -253,7 +268,10 @@ public class ArmyPathFinderModel extends SimModelImpl {
 
 			// shuffle agents
 			SimUtilities.shuffle(agentList);
-			//System.out.println("Another it");
+			if(conf.isVERBOSE()){
+				System.out.println("Another it");
+				System.out.println(agentList);
+			}
 			// iterate through all agents
 			for (int i = 0; i < agentList.size(); i++) {
 				ArmyUnit agent = (ArmyUnit) agentList.get(i);
@@ -350,7 +368,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 						Wall w = new Wall(j, i);
 
 						space.putObjectAt(j, i, w);
-						// map.setPosition(j, i, new Cell(Value.Wall,j,i));
+						 map.setPosition(j, i, new Cell(Value.Unknown,j,i));
 						break;
 					case SOLDIER:
 						Soldier s = new Soldier(j, i, space, conf);
@@ -373,7 +391,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 					case EXIT:
 						Exit e = new Exit(j, i);
 						space.putObjectAt(j, i, e);
-						map.setPosition(j, i, new Cell(Value.Exit, j, i));
+						map.setPosition(j, i, new Cell(Value.Unknown, j, i));
 						break;
 					default:
 						map.setPosition(j, i, new Cell(Value.Unknown, j, i));

@@ -10,7 +10,7 @@ public class Cell extends AStarNode  {
 	
 
 	public enum Value {
-		Wall("W"),Empty("E"),Visited("V"), Captain("C"),Soldier("S"),Me("M"),Exit("X"),Unknown("U"),Robot("R");
+		Wall("W"),Empty("E"),Visited("V"), Captain("C"),Soldier("S"),Me("M"),Exit("X"),Unknown("U"),Robot("R"),Unreachable("I");
 		
 		private final String text;
 

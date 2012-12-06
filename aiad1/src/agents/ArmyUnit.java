@@ -35,7 +35,7 @@ public abstract class ArmyUnit extends BasicAgent {
 	boolean VERBOSE = false;
 	protected int TIMEOUT = 100;
 	protected int waitTime = 0;
-	protected boolean knowsExitLocation = false;
+	private boolean knowsExitLocation = false;
 	protected boolean hasCommunicatedWithCaptain = false;
 	protected boolean hasExited = false;
 	public ArmyUnit(int x, int y, Color color, Object2DGrid space, Config conf) {
@@ -104,6 +104,7 @@ public abstract class ArmyUnit extends BasicAgent {
 		if(exit!=null && knowsExitLocation == false){
 			aStarPath = AStar.run(map.getPosition(x, y), exit, map);
 			knowsExitLocation = true;
+			
 		}
 		// se estou a percorrer um caminho ja delineado, ou se sei onde é a
 				// saida....
@@ -142,7 +143,7 @@ public abstract class ArmyUnit extends BasicAgent {
 
 		}
 		if(VERBOSE)
-			System.out.println("DEICDED TO MOVE TO " + nextMove);
+			System.out.println("DECIDED TO MOVE TO " + nextMove);
 		doMove(nextMove);
 
 	}
@@ -152,8 +153,6 @@ public abstract class ArmyUnit extends BasicAgent {
 	
 	public PriorityQueue<DirectionList> getOrderedListOfMoves() {
 
-		if(x==36&&y==12)
-			System.out.println("0");
 		// ja tenho algo planeado, ignoro a negociação
 		if (aStarPath != null)
 			return null;
@@ -253,28 +252,6 @@ public abstract class ArmyUnit extends BasicAgent {
 
 	}
 
-	/*
-	 * public Pair<Integer, Pair<Integer, Integer>> getPreferedMove() {
-	 * Pair<Integer, Integer> nextMove; DirectionList noEmpties =
-	 * searchSpaceFor(Value.Empty, 0).poll(); if (noEmpties == null) return new
-	 * Pair<Integer, Pair<Integer, Integer>>(0, null); int maxE =
-	 * noEmpties.getGainValue();
-	 * 
-	 * if (maxE > 0) { nextMove = noEmpties.getRandomDirection();
-	 * 
-	 * return new Pair<Integer, Pair<Integer, Integer>>(maxE, nextMove); }
-	 * 
-	 * DirectionList noUnknowns = searchSpaceFor(Value.Unknown, sightRange)
-	 * .poll(); int maxU = noUnknowns.getGainValue();
-	 * 
-	 * if (maxU > 0) { nextMove = noUnknowns.getRandomDirection();
-	 * 
-	 * return new Pair<Integer, Pair<Integer, Integer>>(maxU, nextMove); } //
-	 * não posso andar para a frente. need to backtrack return new Pair<Integer,
-	 * Pair<Integer, Integer>>(0, null);
-	 * 
-	 * }
-	 */
 
 	private AStarNode tryMovingTo(Value v) {
 		if(VERBOSE){
@@ -300,9 +277,14 @@ public abstract class ArmyUnit extends BasicAgent {
 						+ destination.getY() + ")");
 				aStarPath = AStar.run(map.getPosition(x, y), destination, map);
 				destinations.remove(0);
-				if (aStarPath == null && VERBOSE)
-					System.out
-							.println("UPS no path found....tryng to find another place to go");
+				if (aStarPath == null){
+					destination.setValue(Value.Unreachable);
+					map.setPosition(destination.getX(), destination.getY(), destination);
+					
+					if(VERBOSE)
+						System.out.println("UPS no path found....tryng to find another place to go");
+					
+				}
 			}
 			nearestEmpty = findNearest(radius, v);
 			if (nearestEmpty == null)
@@ -573,4 +555,12 @@ public abstract class ArmyUnit extends BasicAgent {
 		return hasExited ;
 	}
 
+	/**
+	 * @return the knowsExitLocation
+	 */
+	public boolean knowsExitLocation() {
+		return knowsExitLocation;
+	}
+
+	
 }
