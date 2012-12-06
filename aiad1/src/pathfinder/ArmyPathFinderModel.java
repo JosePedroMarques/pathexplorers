@@ -1,17 +1,18 @@
 package pathfinder;
 
-import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Vector;
+
+import colorpicking.ColorPickingModel.MovingMode;
 
 import map.Cell;
 import map.Cell.Value;
 import map.Map;
-
+import uchicago.src.reflector.ListPropertyDescriptor;
 import uchicago.src.sim.engine.BasicAction;
 import uchicago.src.sim.engine.Schedule;
 import uchicago.src.sim.engine.SimInit;
@@ -20,15 +21,13 @@ import uchicago.src.sim.gui.DisplaySurface;
 import uchicago.src.sim.gui.Object2DDisplay;
 import uchicago.src.sim.space.Object2DGrid;
 import uchicago.src.sim.util.SimUtilities;
+import utils.Config;
 import agents.ArmyUnit;
-import agents.BasicAgent;
 import agents.Captain;
 import agents.Exit;
-import agents.Soldier;
 import agents.Robot;
+import agents.Soldier;
 import agents.Wall;
-import astar.AStar;
-import astar.AStarNode;
 
 public class ArmyPathFinderModel extends SimModelImpl {
 	private static final char WALL = '#';
@@ -43,26 +42,39 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	private int xSize;
 	private int ySize;
 	private Map map;
+	private Config conf;
+	private String filename;
+	public enum MapName {
+		Map1("mapa1.txt"),Map2("mapa2.txt"),Map3("mapa3.txt"), Map4("mapa4.txt"),Map5("mapa5.txt");
+		
+		private final String text;
 
-	private int live_robot, EMPTYWEIGHT, UNKOWNWEIGHT, DISPERSIONWEIGHT, communication_Range, sight_Range;
-
+		  MapName(String text) {
+		    this.text = text;
+		  }
+		  
+		  
+		 
+		  @Override
+		  public String toString() {
+		    return this.text;
+		  }
+	}
+	
 	public ArmyPathFinderModel() {
-		this.live_robot = 100;
-		this.EMPTYWEIGHT = 1;
-		this.UNKOWNWEIGHT = 2;
-		this.DISPERSIONWEIGHT = 3;
-		this.communication_Range = 3;
-		this.sight_Range = 4;
+		conf = new Config(100,1,2,3,3,4,100,false,MapName.Map1);
+		
 		
 
 	}
 
 	public String getName() {
-		return "Color Picking Model";
+		return "Army Unit Path Finding";
 	}
 
 	public String[] getInitParam() {
-		return new String[] { "live_robot", "EMPTYWEIGHT", "UNKOWNWEIGHT", "DISPERSIONWEIGHT", "communication_Range", "sight_Range" };
+		return new String[] { "live_robot", "EMPTYWEIGHT", "UNKOWNWEIGHT", "DISPERSIONWEIGHT",
+				"communication_Range", "sight_Range","TIMEOUT","VERBOSE","MapName" };
 	}
 
 	public Schedule getSchedule() {
@@ -70,55 +82,78 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	}
 
 	public int getlive_robot() {
-		return live_robot;
+		return conf.getLive_robot();
 	}
 
 	public void setlive_robot(int live_robot) {
-		this.live_robot = live_robot;
+		conf.setLive_robot(live_robot);
 	}
 	
 	
-	public int getEMPTYWEIGHT() {
-		return EMPTYWEIGHT;
+	public float getEMPTYWEIGHT() {
+		return conf.getEMPTYWEIGHT();
 	}
 
-	public void setEMPTYWEIGHT(int EMPTYWEIGHT) {
-		this.EMPTYWEIGHT = EMPTYWEIGHT;
+	public void setEMPTYWEIGHT(float EMPTYWEIGHT) {
+		conf.setEMPTYWEIGHT(EMPTYWEIGHT);
 	}
 	
-	public int getUNKOWNWEIGHT() {
-		return UNKOWNWEIGHT;
+	public float getUNKOWNWEIGHT() {
+		return conf.getUNKOWNWEIGHT();
 	}
 
-	public void setUNKOWNWEIGHT(int UNKOWNWEIGHT) {
-		this.UNKOWNWEIGHT = UNKOWNWEIGHT;
+	public void setUNKOWNWEIGHT(float UNKOWNWEIGHT) {
+		conf.setUNKOWNWEIGHT(UNKOWNWEIGHT);
 	}
 	
-	public int getDISPERSIONWEIGHT() {
-		return DISPERSIONWEIGHT;
+	public float getDISPERSIONWEIGHT() {
+		return conf.getDISPERSIONWEIGHT();
 	}
 
-	public void setDISPERSIONWEIGHT(int DISPERSIONWEIGHT) {
-		this.DISPERSIONWEIGHT = DISPERSIONWEIGHT;
+	public void setDISPERSIONWEIGHT(float DISPERSIONWEIGHT) {
+		conf.setDISPERSIONWEIGHT(DISPERSIONWEIGHT);
 	}
 	
 	public int getcommunication_Range() {
-		return communication_Range;
+		return conf.getCommunication_Range();
 	}
 
 	public void setcommunication_Range(int communication_Range) {
-		this.communication_Range = communication_Range;
+		conf.setCommunication_Range(communication_Range);
 	}
 	
 	public int getsight_Range() {
-		return sight_Range;
+		return conf.getSight_Range();
 	}
 
 	public void setsight_Range(int sight_Range) {
-		this.sight_Range = sight_Range;
+		conf.setSight_Range(sight_Range);
 	}
 	
+	public int getTIMEOUT() {
+		return conf.getTIMEOUT();
+	}
 
+	public void setTIMEOUT(int TIMEOUT) {
+		conf.setTIMEOUT(TIMEOUT);
+	}
+	
+	public boolean getVERBOSE() {
+		return conf.isVERBOSE();
+	}
+
+	public void setVERBOSE(boolean VERBOSE) {
+		conf.setVERBOSE(VERBOSE);
+	}
+	
+	public MapName getMapName(){
+		
+		return conf.getMapName();
+	}
+	public void setMapName(MapName mn){
+		conf.setMapName(mn);
+		
+	}
 	public void setup() {
 		schedule = new Schedule();
 		if (dsurf != null)
@@ -128,12 +163,14 @@ public class ArmyPathFinderModel extends SimModelImpl {
 		dsurf.getBounds().height = 200;
 		registerDisplaySurface("Army PathFinder", dsurf);
 
-		/*
-		 * // property descriptors Vector<MovingMode> vMM = new
-		 * Vector<MovingMode>(); for(int i=0; i<MovingMode.values().length; i++)
-		 * { vMM.add(MovingMode.values()[i]); } descriptors.put("MovingMode",
-		 * new ListPropertyDescriptor("MovingMode", vMM));
-		 */
+		
+		Vector<MapName> vMN = new Vector<MapName>();
+		for(int i=0; i<MapName.values().length; i++) {
+			vMN.add(MapName.values()[i]);
+		}
+		descriptors.put("MapName", new ListPropertyDescriptor("MapName", vMN));
+	
+		 
 
 	}
 
@@ -142,20 +179,12 @@ public class ArmyPathFinderModel extends SimModelImpl {
 		buildModel();
 		buildDisplay();
 		buildSchedule();
-		/*
-		 * Cell init = new Cell(Value.Empty,3,1); Cell goal = new
-		 * Cell(Value.Exit,4,5);
-		 * 
-		 * LinkedList<AStarNode> path = AStar.run(init, goal, map);
-		 * if(path!=null) for (AStarNode n: path)
-		 * System.out.print(n.getCoords()+"->"); else
-		 * System.out.println("No path found");
-		 */
+	
 	}
 
 	public void buildModel() {
 		agentList = new ArrayList<ArmyUnit>();
-		readMap("mapa3.txt");
+		readMap(conf.getMapName().toString());
 
 	
 	}
@@ -188,13 +217,14 @@ public class ArmyPathFinderModel extends SimModelImpl {
 				ArmyUnit agent = (ArmyUnit) agentList.get(i);
 
 				
-				if (!agent.hasReachedExit()) {
+				if (!agent.hasExited()) {
 					agent.lookAround();
 					agent.move();		
 					agent.broadcastMap();
 					
 				
-				}
+				}else
+					agentList.remove(agent);
 				
 
 			}
@@ -279,19 +309,19 @@ public class ArmyPathFinderModel extends SimModelImpl {
 						// map.setPosition(j, i, new Cell(Value.Wall,j,i));
 						break;
 					case SOLDIER:
-						Soldier s = new Soldier(j, i, space, communication_Range);
+						Soldier s = new Soldier(j, i, space, conf);
 						agentList.add(s);
 						space.putObjectAt(j, i, s);
 						map.setPosition(j, i, new Cell(Value.Soldier, j, i));
 						break;
 					case CAPTAIN:
-						Captain c = new Captain(j, i, space);
+						Captain c = new Captain(j, i, space,conf);
 						agentList.add(c);
 						space.putObjectAt(j, i, c);
 						map.setPosition(j, i, new Cell(Value.Captain, j, i));
 						break;
 					case ROBOT:
-						Robot r = new Robot(j, i, space, live_robot);
+						Robot r = new Robot(j, i, space,conf);
 						agentList.add(r);
 						space.putObjectAt(j, i, r);
 						map.setPosition(j, i, new Cell(Value.Robot, j, i));

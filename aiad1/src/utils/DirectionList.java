@@ -6,7 +6,7 @@ import uchicago.src.sim.util.Random;
 
 public class DirectionList implements Comparable<DirectionList>{
 
-	private int gainValue= 0;
+	private float gainValue= 0;
 	private ArrayList<Pair<Integer, Integer>> directions;
 
 	
@@ -20,16 +20,16 @@ public class DirectionList implements Comparable<DirectionList>{
 	/**
 	 * @return the gainValue
 	 */
-	public int getGainValue() {
+	public float getGainValue() {
 		return gainValue;
 	}
 
 
 	/**
-	 * @param gainValue the gainValue to set
+	 * @param f the gainValue to set
 	 */
-	public void setGainValue(int gainValue) {
-		this.gainValue = gainValue;
+	public void setGainValue(float f) {
+		this.gainValue = f;
 	}
 
 

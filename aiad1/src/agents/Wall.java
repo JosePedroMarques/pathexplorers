@@ -1,11 +1,9 @@
 package agents;
 
 import java.awt.Color;
-import java.awt.image.ColorModel;
 
 import map.Cell.Value;
 
-import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.SimGraphics;
 
 public class Wall extends BasicAgent {

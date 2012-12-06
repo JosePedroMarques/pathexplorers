@@ -2,30 +2,22 @@ package agents;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
-import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
-
-import astar.AStar;
-import astar.AStarNode;
 
 import map.Cell;
 import map.Cell.Value;
 import map.Map;
-
 import uchicago.src.sim.space.Object2DGrid;
-import uchicago.src.sim.util.Random;
+import utils.Config;
 import utils.DirectionList;
-import utils.NegotiationOffer;
 import utils.Pair;
-
-
-import pathfinder.*;
+import astar.AStar;
+import astar.AStarNode;
 
 public abstract class ArmyUnit extends BasicAgent {
 
@@ -37,18 +29,28 @@ public abstract class ArmyUnit extends BasicAgent {
 	protected Stack<Pair<Integer, Integer>> movesDone;
 	protected LinkedList<AStarNode> aStarPath = null;
 	protected boolean hasReachedExit = false;
-	private final int EMPTYWEIGHT = 2;
-	private final int UNKOWNWEIGHT = 1;
-	private final int DISPERSIONWEIGHT = 3;
-	boolean DEBUG = false;
-
-	public ArmyUnit(int x, int y, Color color, Object2DGrid space) {
+	private float EMPTYWEIGHT = 2;
+	private float UNKOWNWEIGHT = 1;
+	private float DISPERSIONWEIGHT = 3;
+	boolean VERBOSE = false;
+	protected int TIMEOUT = 100;
+	protected int waitTime = 0;
+	protected boolean knowsExitLocation = false;
+	protected boolean hasCommunicatedWithCaptain = false;
+	protected boolean hasExited = false;
+	public ArmyUnit(int x, int y, Color color, Object2DGrid space, Config conf) {
 
 		super(x, y, color);
 		this.space = space;
 		setMap(new Map(space.getSizeX(), space.getSizeY()));
 		movesDone = new Stack<Pair<Integer, Integer>>();
 		movesDone.push(new Pair<Integer, Integer>(x, y));
+		this.EMPTYWEIGHT = conf.getEMPTYWEIGHT();
+		this.DISPERSIONWEIGHT = conf.getDISPERSIONWEIGHT();
+		this.UNKOWNWEIGHT = conf.getUNKOWNWEIGHT();
+		this.VERBOSE = conf.isVERBOSE();
+		this.TIMEOUT = conf.getTIMEOUT();
+		
 	}
 
 	public PriorityQueue<DirectionList> searchSpaceFor(ArrayList<Value> v,
@@ -90,7 +92,7 @@ public abstract class ArmyUnit extends BasicAgent {
 	}
 
 	public void move() {
-		if(DEBUG){
+		if(VERBOSE){
 			System.out.println("IM A FREAKING " + getValue() + " at (" + x+ " , " + y + " )");
 			System.out.println("MY ASTARLIST IS LIKE THIS:");
 			System.out.println(aStarPath);
@@ -98,19 +100,24 @@ public abstract class ArmyUnit extends BasicAgent {
 		}
 		Pair<Integer, Integer> nextMove;
 		Cell exit = map.getExit();
+		//encontrei a saida pela primeira vez, ignore o caminho que tinha planeado
+		if(exit!=null && knowsExitLocation == false){
+			aStarPath = AStar.run(map.getPosition(x, y), exit, map);
+			knowsExitLocation = true;
+		}
 		// se estou a percorrer um caminho ja delineado, ou se sei onde é a
-		// saida....
+				// saida....
 		if (exit != null || aStarPath != null) {
 			if (aStarPath == null) // calcular o caminho para saida
 				aStarPath = AStar.run(map.getPosition(x, y), exit, map);
 			AStarNode nextNode = aStarPath.removeFirst();
 			
-			if (aStarPath.isEmpty())
-				aStarPath = null;
+			
 			if (exit != null && nextNode.equals(exit))
 				hasReachedExit = true;
-			nextMove = new Pair<Integer, Integer>(nextNode.getX(),
-					nextNode.getY());
+			nextMove = onExitFoundAction(nextNode);
+			if (aStarPath.isEmpty())
+				aStarPath = null;
 			movesDone.push(nextMove);
 		}// senao e preciso calcular o proximo passo
 		else {
@@ -134,85 +141,15 @@ public abstract class ArmyUnit extends BasicAgent {
 			}
 
 		}
-		if(DEBUG)
+		if(VERBOSE)
 			System.out.println("DEICDED TO MOVE TO " + nextMove);
 		doMove(nextMove);
 
 	}
 
-	/*
-	 * private void negotiateMove(ArrayList<Cell> unitsInSight) { boolean[]
-	 * dirUsed = { false, false, false, false }; Pair int usedDir = 0;
-	 * ArrayList<ArmyUnit> armyUnits = getArmyUnits(unitsInSight); // fazer a
-	 * minha lista de direções ordenada PriorityQueue<DirectionList> myPrefs =
-	 * getOrderedListOfMoves(); HashMap<ArmyUnit, PriorityQueue<DirectionList>>
-	 * dirMap = new HashMap<ArmyUnit, PriorityQueue<DirectionList>>();
-	 * HashMap<ArmyUnit, DirectionList> maxDirMap = new HashMap<ArmyUnit,
-	 * DirectionList>(); dirMap.put(this, myPrefs); maxDirMap.put(this,
-	 * myPrefs.peek()); // pedir a todos -> responde com null se ja tiver algo
-	 * planeado for (ArmyUnit a : armyUnits) { PriorityQueue<DirectionList>
-	 * prefs = a.getOrderedListOfMoves(); if (prefs != null) { dirMap.put(a,
-	 * prefs); maxDirMap.put(a, prefs.peek()); }
-	 * 
-	 * }
-	 * 
-	 * boolean negotiationComplete = false; // loop
-	 * 
-	 * while (!negotiationComplete) { // escolher a melhor
-	 * PriorityQueue<NegotiationOffer> queueOffer = new
-	 * PriorityQueue<NegotiationOffer>();
-	 * 
-	 * for (Entry<ArmyUnit, PriorityQueue<DirectionList>> e : dirMap
-	 * .entrySet()) { ArmyUnit a = e.getKey(); PriorityQueue<DirectionList>
-	 * prefs = e.getValue(); // ficou sem mais direcoes, escolhe a original if
-	 * (prefs == null) { a.sendDirection(maxDirMap.get(a).getRandomDirection());
-	 * continue; } NegotiationOffer offer = new NegotiationOffer(a,
-	 * prefs.peek()); queueOffer.add(offer);
-	 * 
-	 * }
-	 * 
-	 * // avisar esse, retirar aos outros
-	 * 
-	 * boolean dirChosen = false; while (!dirChosen && !queueOffer.isEmpty()) {
-	 * NegotiationOffer winner = queueOffer.poll(); dirChosen = false; while
-	 * (!dirChosen && !winner.getPreferences().getDirections().isEmpty()) {
-	 * Pair<Integer, Integer> direction = winner.getPreferences()
-	 * .getRandomDirection();
-	 * 
-	 * int dir = getDir(winner.getOwner(), direction); if (!dirUsed[dir]) {
-	 * winner.getOwner().sendDirection(direction); dirUsed[dir] = true;
-	 * dirChosen = true; usedDir++; dirMap.remove(winner.getOwner());
-	 * 
-	 * }else winner.getPreferences().removeDirection(direction);
-	 * 
-	 * 
-	 * } } if (usedDir == 4 || queueOffer.isEmpty()) {
-	 * 
-	 * for (Entry<ArmyUnit, PriorityQueue<DirectionList>> e : dirMap
-	 * .entrySet()) { ArmyUnit a = e.getKey();
-	 * a.sendDirection(maxDirMap.get(a).getRandomDirection()); }
-	 * negotiationComplete = true;
-	 * 
-	 * } }
-	 * 
-	 * }
-	 * 
-	 * private int getDir(ArmyUnit winner, Pair<Integer, Integer> direction) {
-	 * 
-	 * int xi = winner.getX(); int yi = winner.getY(); int xf =
-	 * direction.getFirst(); int yf = direction.getSecond();
-	 * 
-	 * // up ou down if (xf == xi) { if (yf > yi) return DOWN; return UP;
-	 * 
-	 * } if (xf > xi) return RIGHT; return LEFT;
-	 * 
-	 * }
-	 */
-	private void sendDirection(Pair<Integer, Integer> randomDirection) {
-		// TODO Auto-generated method stub
+	protected abstract Pair<Integer, Integer> onExitFoundAction(AStarNode nextNode); 
 
-	}
-
+	
 	public PriorityQueue<DirectionList> getOrderedListOfMoves() {
 
 		if(x==36&&y==12)
@@ -224,7 +161,7 @@ public abstract class ArmyUnit extends BasicAgent {
 		obj.add(Value.Empty);
 		PriorityQueue<DirectionList> dirEmpties = searchSpaceFor(obj, sightRange);
 		
-		if(DEBUG){
+		if(VERBOSE){
 			
 			System.out.println("THIS IS MY DIRECTION LIST - EMPTY");
 			System.out.println(dirEmpties);
@@ -233,7 +170,7 @@ public abstract class ArmyUnit extends BasicAgent {
 		obj.add(Value.Unknown);
 		PriorityQueue<DirectionList> dirUnknowns = searchSpaceFor(obj, sightRange);
 		
-		if(DEBUG){
+		if(VERBOSE){
 			
 			System.out.println("THIS IS MY DIRECTION LIST - UNKNOWN");
 			System.out.println(dirUnknowns);
@@ -244,7 +181,7 @@ public abstract class ArmyUnit extends BasicAgent {
 		obj.add(Value.Captain);
 		obj.add(Value.Robot);
 		PriorityQueue<DirectionList> dirDisperse = searchSpaceFor(obj, 1);
-		if(DEBUG){
+		if(VERBOSE){
 			
 			System.out.println("THIS IS MY DIRECTION LIST - DISPERSE");
 			System.out.println(dirDisperse);
@@ -252,14 +189,14 @@ public abstract class ArmyUnit extends BasicAgent {
 		PriorityQueue<DirectionList> dirDisperseInv = new PriorityQueue<DirectionList>();
 		if(!dirDisperse.isEmpty()){
 		
-			int max = Math.max(dirDisperse.peek().getGainValue(),Math.max(dirEmpties.peek().getGainValue(),dirUnknowns.peek().getGainValue()));
+			float max = Math.max(dirDisperse.peek().getGainValue(),Math.max(dirEmpties.peek().getGainValue(),dirUnknowns.peek().getGainValue()));
 			for (DirectionList dl : dirDisperse){
-				int currentValue = dl.getGainValue();
-				int inverseValue = currentValue < 0 ? currentValue: max-currentValue;
+				float currentValue = dl.getGainValue();
+				float inverseValue = currentValue < 0 ? currentValue: max-currentValue;
 				dl.setGainValue(inverseValue);
 				dirDisperseInv.add(dl);
 			}
-			if(DEBUG){
+			if(VERBOSE){
 				
 				System.out.println("THIS IS MY DIRECTION LIST - DISPERSE INV");
 				System.out.println(dirDisperseInv);
@@ -285,27 +222,10 @@ public abstract class ArmyUnit extends BasicAgent {
 		return allDirs;
 	}
 
-	private ArrayList<ArmyUnit> getArmyUnits(ArrayList<Cell> unitsInSight) {
-		ArrayList<ArmyUnit> armyUnits = new ArrayList<ArmyUnit>();
-		for (Cell c : unitsInSight) {
-			armyUnits.add((ArmyUnit) space.getObjectAt(c.getX(), c.getY()));
-		}
-		return armyUnits;
-	}
-
-	private ArrayList<Cell> getUnitsInSight() {
-
-		ArrayList<Value> arrayUnits = new ArrayList<Value>();
-		arrayUnits.add(Value.Captain);
-		arrayUnits.add(Value.Soldier);
-		arrayUnits.add(Value.Robot);
-		return (ArrayList<Cell>) map.getReachableValues(x, y, sightRange,
-				arrayUnits);
-
-	}
+	
 
 	public Pair<Integer, Integer> backtraceStep() {
-		if(DEBUG){
+		if(VERBOSE){
 			System.out.println("NEEDED TO BACKTRACK");
 			System.out.println("MY STACK LOOKS LIKE THIS:");
 			System.out.println(movesDone);
@@ -320,7 +240,7 @@ public abstract class ArmyUnit extends BasicAgent {
 			
 				
 		}
-		if(DEBUG)
+		if(VERBOSE)
 			System.out.println("SEEMS I WILL ASTAR TO A PREVIOUS LOCATION");
 		AStarNode node = tryMovingTo(Value.Empty);
 		if (node == null)
@@ -357,7 +277,7 @@ public abstract class ArmyUnit extends BasicAgent {
 	 */
 
 	private AStarNode tryMovingTo(Value v) {
-		if(DEBUG){
+		if(VERBOSE){
 			System.out.println("TRYING TO FIND A PLACE TO GO");
 			System.out.println(map);
 		}
@@ -365,7 +285,7 @@ public abstract class ArmyUnit extends BasicAgent {
 		Pair<Integer, ArrayList<Cell>> nearestEmpty = findNearest(1, v);
 		if (nearestEmpty == null)
 			return null;
-		if(DEBUG)	
+		if(VERBOSE)	
 			System.out.println("I MIGHT HAVE A PLACE TO GO NOW");
 
 		while (aStarPath == null) {
@@ -373,14 +293,14 @@ public abstract class ArmyUnit extends BasicAgent {
 			ArrayList<Cell> destinations = nearestEmpty.getSecond();
 			while (aStarPath == null && !destinations.isEmpty()) {
 				Cell destination = destinations.get(0);
-				if(DEBUG)
+				if(VERBOSE)
 					System.out.println("I'm at (" + x + ", " + y
 						+ ") stuck, nowhere to go. Backtracking to "
 						+ destination + " at (" + destination.getX() + ", "
 						+ destination.getY() + ")");
 				aStarPath = AStar.run(map.getPosition(x, y), destination, map);
 				destinations.remove(0);
-				if (aStarPath == null && DEBUG)
+				if (aStarPath == null && VERBOSE)
 					System.out
 							.println("UPS no path found....tryng to find another place to go");
 			}
@@ -438,7 +358,9 @@ public abstract class ArmyUnit extends BasicAgent {
 	}
 
 	public void lookAround() {
-
+		hasCommunicatedWithCaptain = false;
+		
+		
 		// Look left
 		int searched = 0;
 		int xS = x;
@@ -566,7 +488,7 @@ public abstract class ArmyUnit extends BasicAgent {
 	}
 
 	public void broadcastMap() {
-
+		hasCommunicatedWithCaptain = false;
 		Cell oldCell = map.getPosition(x, y);
 		map.setPosition(x, y, new Cell(getValue(), x, y));
 		Vector v = space.getMooreNeighbors(x, y, getCommunicationRange(),
@@ -575,6 +497,7 @@ public abstract class ArmyUnit extends BasicAgent {
 
 			if (canCommunicate(o)) {
 				ArmyUnit a = (ArmyUnit) o;
+				hasCommunicatedWithCaptain = a.getValue() == Value.Captain ||hasCommunicatedWithCaptain ;
 				a.receiveComm(this.map, this.getValue());
 			}
 		}
@@ -643,6 +566,11 @@ public abstract class ArmyUnit extends BasicAgent {
 	public boolean hasReachedExit() {
 		// TODO Auto-generated method stub
 		return hasReachedExit;
+	}
+
+	public boolean hasExited() {
+		// TODO Auto-generated method stub
+		return hasExited ;
 	}
 
 }

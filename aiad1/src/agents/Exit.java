@@ -4,7 +4,6 @@ import java.awt.Color;
 
 import map.Cell.Value;
 import uchicago.src.sim.gui.SimGraphics;
-import uchicago.src.sim.space.Object2DGrid;
 
 public class Exit extends BasicAgent {
 
