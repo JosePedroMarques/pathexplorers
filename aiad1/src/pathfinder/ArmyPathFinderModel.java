@@ -65,7 +65,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	}
 	
 	public ArmyPathFinderModel() {
-		conf = new Config(100,2,1,3,3,4,100,false,MapName.Map1);
+		conf = new Config(100,2,1,3,3,4,100,false,MapName.Map1,150);
 		
 		
 

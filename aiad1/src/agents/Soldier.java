@@ -15,9 +15,11 @@ public class Soldier extends ArmyUnit {
 
 	
 	
+	
 	public Soldier(int x, int y,Object2DGrid space,Config conf){
 		super(x,y,new Color(0,0,255),space,conf);
 		this.communicationRange = conf.getCommunication_Range();
+		this.radioBattery = conf.getRadioBattery();
 	}
 
 	@Override
@@ -27,6 +29,18 @@ public class Soldier extends ArmyUnit {
 	}
 
 
+	@Override
+	public void broadcastMap(){
+		if(this.radioBattery > 0){
+			if(knowsExitLocation() || stoppedBacktracking){
+				System.out.println("Decided to comunicate");
+				super.broadcastMap();
+				radioBattery--;
+			}
+			
+			
+		}
+	}
 
 	@Override
 	public Value getValue() {

@@ -38,6 +38,10 @@ public abstract class ArmyUnit extends BasicAgent {
 	private boolean knowsExitLocation = false;
 	protected boolean hasCommunicatedWithCaptain = false;
 	protected boolean hasExited = false;
+	protected boolean justBacktracked = false;
+	protected boolean backtrackedLast = false;
+	protected int radioBattery;
+	protected boolean stoppedBacktracking;
 	public ArmyUnit(int x, int y, Color color, Object2DGrid space, Config conf) {
 
 		super(x, y, color);
@@ -98,6 +102,8 @@ public abstract class ArmyUnit extends BasicAgent {
 			System.out.println(aStarPath);
 			System.out.println(map);
 		}
+		
+		justBacktracked = false;
 		Pair<Integer, Integer> nextMove;
 		Cell exit = map.getExit();
 		//encontrei a saida pela primeira vez, ignore o caminho que tinha planeado
@@ -122,9 +128,9 @@ public abstract class ArmyUnit extends BasicAgent {
 			movesDone.push(nextMove);
 		}// senao e preciso calcular o proximo passo
 		else {
-			//ArrayList<Cell> unitsInSight = getUnitsInSight();
+			
 			PriorityQueue<DirectionList> moves = getOrderedListOfMoves();
-			//se o meu melhor movimento tem ganho negativo
+			//se o meu melhor movimento tem ganho nao positivo
 			//e preciso andar para tras
 			
 			if (moves== null || moves.peek().getGainValue() <=0 )
@@ -146,7 +152,10 @@ public abstract class ArmyUnit extends BasicAgent {
 		if(VERBOSE)
 			System.out.println("DECIDED TO MOVE TO " + nextMove);
 		doMove(nextMove);
-
+		
+		stoppedBacktracking = backtrackedLast && !justBacktracked;
+		
+		backtrackedLast = justBacktracked;
 	}
 
 	protected abstract Pair<Integer, Integer> onExitFoundAction(AStarNode nextNode); 
@@ -230,11 +239,14 @@ public abstract class ArmyUnit extends BasicAgent {
 			System.out.println("MY STACK LOOKS LIKE THIS:");
 			System.out.println(movesDone);
 		}
-		if (!movesDone.isEmpty()) { // posso voltar por onde vim
+		if (movesDone.size() >1) { // posso voltar por onde vim
+			movesDone.pop();
 			Pair<Integer, Integer> lastDirection = movesDone.peek();
 			if (map.canGoInto(lastDirection.getFirst(),
 					lastDirection.getSecond())){
 				movesDone.pop();
+				justBacktracked = true;
+				
 				return lastDirection;
 			}
 			

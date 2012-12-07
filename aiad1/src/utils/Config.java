@@ -13,10 +13,11 @@ public class Config {
 	private int communication_Range;
 	private int sight_Range;
 	private MapName mapName;
+	private int radioBattery;
 
 	public Config(int live_robot, float EMPTYWEIGHT, float UNKOWNWEIGHT,
 			float DISPERSIONWEIGHT, int communication_Range, int sight_Range,
-			int TIMEOUT,boolean VERBOSE, MapName mapName) {
+			int TIMEOUT,boolean VERBOSE, MapName mapName, int radioBattery) {
 		
 		this.live_robot = live_robot;
 		this.EMPTYWEIGHT = EMPTYWEIGHT;
@@ -26,6 +27,7 @@ public class Config {
 		this.sight_Range = sight_Range;
 		this.TIMEOUT = TIMEOUT;
 		this.mapName = mapName;
+		this.radioBattery = radioBattery;
 
 	}
 
@@ -153,6 +155,15 @@ public class Config {
 	 */
 	public void setMapName(MapName mapName) {
 		this.mapName = mapName;
+	}
+
+	public int getRadioBattery() {
+		// TODO Auto-generated method stub
+		return radioBattery;
+	}
+	
+	public void setRadioBattery(int rb){
+		this.radioBattery = rb;
 	}
 
 }
