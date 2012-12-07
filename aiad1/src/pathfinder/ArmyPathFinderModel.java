@@ -5,7 +5,6 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Vector;
 
 import map.Cell;
@@ -66,7 +65,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	}
 	
 	public ArmyPathFinderModel() {
-		conf = new Config(100,1,2,3,3,4,100,false,MapName.Map1);
+		conf = new Config(100,2,1,3,3,4,100,false,MapName.Map1);
 		
 		
 
@@ -235,7 +234,11 @@ public class ArmyPathFinderModel extends SimModelImpl {
 		// plot number of different existing colors
 		plot2.addSequence("Agents in the maze", new Sequence() {
 			public double getSValue() {
-				return Math.max(agentList.size()-map.getNumberOf(Value.Robot),0);
+				int n = 0;
+				for(ArmyUnit a : agentList)
+					if(a.getValue() != Value.Robot)
+						n++;
+				return n;
 			}
 		});
 		
@@ -243,7 +246,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 			public double getSValue() {
 				int n = 0;
 				for(ArmyUnit a : agentList)
-					if(a.knowsExitLocation())
+					if(a.knowsExitLocation() && a.getValue() != Value.Robot)
 						n++;
 				return n;
 			}

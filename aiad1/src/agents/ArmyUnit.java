@@ -126,7 +126,8 @@ public abstract class ArmyUnit extends BasicAgent {
 			PriorityQueue<DirectionList> moves = getOrderedListOfMoves();
 			//se o meu melhor movimento tem ganho negativo
 			//e preciso andar para tras
-			if (moves== null || moves.peek().getGainValue() <0 )
+			
+			if (moves== null || moves.peek().getGainValue() <=0 )
 				nextMove = backtraceStep();
 			else {
 				// se nao estiver sozinho
