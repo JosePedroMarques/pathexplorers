@@ -25,8 +25,7 @@ public abstract class ArmyUnit extends BasicAgent {
 	protected int communicationRange = 20;
 	int sightRange = 5;
 	protected Object2DGrid space;
-	private Map map;
-	protected Stack<Pair<Integer, Integer>> movesDone;
+	protected Map map;
 	protected LinkedList<AStarNode> aStarPath = null;
 	protected boolean hasReachedExit = false;
 	private float EMPTYWEIGHT = 2;
@@ -47,8 +46,6 @@ public abstract class ArmyUnit extends BasicAgent {
 		super(x, y, color);
 		this.space = space;
 		setMap(new Map(space.getSizeX(), space.getSizeY()));
-		movesDone = new Stack<Pair<Integer, Integer>>();
-		movesDone.push(new Pair<Integer, Integer>(x, y));
 		this.EMPTYWEIGHT = conf.getEMPTYWEIGHT();
 		this.DISPERSIONWEIGHT = conf.getDISPERSIONWEIGHT();
 		this.UNKOWNWEIGHT = conf.getUNKOWNWEIGHT();
@@ -125,7 +122,6 @@ public abstract class ArmyUnit extends BasicAgent {
 			nextMove = onExitFoundAction(nextNode);
 			if (aStarPath.isEmpty())
 				aStarPath = null;
-			movesDone.push(nextMove);
 		}// senao e preciso calcular o proximo passo
 		else {
 			
@@ -145,7 +141,6 @@ public abstract class ArmyUnit extends BasicAgent {
 
 				// }
 				nextMove = moves.peek().getRandomDirection();
-				movesDone.push(nextMove);
 			}
 
 		}
@@ -237,21 +232,9 @@ public abstract class ArmyUnit extends BasicAgent {
 		if(VERBOSE){
 			System.out.println("NEEDED TO BACKTRACK");
 			System.out.println("MY STACK LOOKS LIKE THIS:");
-			System.out.println(movesDone);
 		}
-		if (movesDone.size() >1) { // posso voltar por onde vim
-			movesDone.pop();
-			Pair<Integer, Integer> lastDirection = movesDone.peek();
-			if (map.canGoInto(lastDirection.getFirst(),
-					lastDirection.getSecond())){
-				movesDone.pop();
-				justBacktracked = true;
-				
-				return lastDirection;
-			}
-			
-				
-		}
+	
+		justBacktracked = true;
 		if(VERBOSE)
 			System.out.println("SEEMS I WILL ASTAR TO A PREVIOUS LOCATION");
 		AStarNode node = tryMovingTo(Value.Empty);
@@ -500,7 +483,7 @@ public abstract class ArmyUnit extends BasicAgent {
 
 	}
 
-	private void receiveComm(Map map2, Value value) {
+	protected void receiveComm(Map map2, Value value) {
 		for (int i = 0; i < map.getY(); i++)
 			for (int j = 0; j < map.getX(); j++)
 				if (map.getPosition(j, i).getValue() == Value.Unknown) {
@@ -531,7 +514,7 @@ public abstract class ArmyUnit extends BasicAgent {
 
 	}
 
-	private boolean canCommunicate(Object o) {
+	protected boolean canCommunicate(Object o) {
 
 		if (((BasicAgent) o).canReceiveComms()) {
 			ArmyUnit a = (ArmyUnit) o;

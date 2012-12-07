@@ -33,7 +33,8 @@ public class Soldier extends ArmyUnit {
 	public void broadcastMap(){
 		if(this.radioBattery > 0){
 			if(knowsExitLocation() || stoppedBacktracking){
-				System.out.println("Decided to comunicate");
+				if(VERBOSE)
+					System.out.println("Decided to comunicate");
 				super.broadcastMap();
 				radioBattery--;
 			}
