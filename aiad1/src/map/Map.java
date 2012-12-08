@@ -304,7 +304,7 @@ public class Map extends AStarMap {
 
 		}
 
-		/* for (int j = maxLeft; j<maxRight;j++) */
+		
 
 		return cells;
 

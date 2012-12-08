@@ -9,7 +9,7 @@ public class Visited extends BasicAgent{
 
 	public Visited(int x,int y)
 	{
-		super(x,y,new Color(255,255,0));
+		super(x,y,new Color(55,71,71));
 	}
 	@Override
 	public void draw(SimGraphics g) {

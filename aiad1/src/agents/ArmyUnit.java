@@ -9,10 +9,13 @@ import java.util.PriorityQueue;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.poi.poifs.storage.BATBlock;
+
 import map.Cell;
 import map.Cell.Value;
 import map.Map;
 import uchicago.src.sim.space.Object2DGrid;
+import uchicago.src.sim.util.Random;
 import utils.Config;
 import utils.DirectionList;
 import utils.Pair;
@@ -41,6 +44,9 @@ public abstract class ArmyUnit extends BasicAgent {
 	protected boolean backtrackedLast = false;
 	protected int radioBattery;
 	protected boolean stoppedBacktracking;
+	protected Color commColor;
+	protected boolean visualizeComm;
+	
 	public ArmyUnit(int x, int y, Color color, Object2DGrid space, Config conf) {
 
 		super(x, y, color);
@@ -51,6 +57,8 @@ public abstract class ArmyUnit extends BasicAgent {
 		this.UNKOWNWEIGHT = conf.getUNKOWNWEIGHT();
 		this.VERBOSE = conf.isVERBOSE();
 		this.TIMEOUT = conf.getTIMEOUT();
+		this.radioBattery = conf.getRadioBattery();
+		this.visualizeComm = conf.isVisualizeComm();
 		
 	}
 
@@ -241,6 +249,7 @@ public abstract class ArmyUnit extends BasicAgent {
 		if (node == null)
 			node = tryMovingTo(Value.Unknown);
 		if (node == null) {
+			System.out.println(map);
 			System.out.println("Woot? No empties nor unknowns and no exit??");
 			return new Pair<Integer, Integer>(x, y);
 		}
@@ -471,19 +480,30 @@ public abstract class ArmyUnit extends BasicAgent {
 		map.setPosition(x, y, new Cell(getValue(), x, y));
 		Vector v = space.getMooreNeighbors(x, y, getCommunicationRange(),
 				getCommunicationRange(), false);
+		Color cColor;
+		if(visualizeComm){
+			int rnd = Random.uniform.nextIntFromTo(0,255);
+			 cColor = new Color(rnd,0,rnd);
+		}
+		else
+			cColor = this.color;
+			
+		this.color = cColor;
 		for (Object o : v) {
 
 			if (canCommunicate(o)) {
 				ArmyUnit a = (ArmyUnit) o;
 				hasCommunicatedWithCaptain = a.getValue() == Value.Captain ||hasCommunicatedWithCaptain ;
-				a.receiveComm(this.map, this.getValue());
+				
+				a.receiveComm(this.map, this.getValue(),cColor);
 			}
 		}
 		map.setPosition(x, y, oldCell);
 
 	}
 
-	protected void receiveComm(Map map2, Value value) {
+	protected void receiveComm(Map map2, Value value,Color color) {
+		this.color = color;
 		for (int i = 0; i < map.getY(); i++)
 			for (int j = 0; j < map.getX(); j++)
 				if (map.getPosition(j, i).getValue() == Value.Unknown) {
@@ -557,6 +577,29 @@ public abstract class ArmyUnit extends BasicAgent {
 	public boolean knowsExitLocation() {
 		return knowsExitLocation;
 	}
+	
+	public int getBatteryLife(){
+		return radioBattery;
+	}
+	public void setBatteryLife(int bl){
+	 radioBattery = bl;
+	}
+	
+	
+	public int getSight_Range() {
+		return sightRange;
+	}
+
+	/**
+	 * @param sight_Range the sight_Range to set
+	 */
+	public void setSight_Range(int sight_Range) {
+		this.sightRange = sight_Range;
+	}
+
+	public abstract void resetColor();
+
+	
 
 	
 }

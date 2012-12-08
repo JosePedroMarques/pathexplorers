@@ -65,7 +65,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 	}
 	
 	public ArmyPathFinderModel() {
-		conf = new Config(100,2,1,3,3,4,100,false,MapName.Map1,150);
+		conf = new Config(100,2,1,3,3,4,100,false,MapName.Map1,150,false);
 		
 		
 
@@ -77,7 +77,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 
 	public String[] getInitParam() {
 		return new String[] { "live_robot", "EMPTYWEIGHT", "UNKOWNWEIGHT", "DISPERSIONWEIGHT",
-				"communication_Range", "sight_Range","TIMEOUT","VERBOSE","MapName" };
+				"communication_Range", "sight_Range","TIMEOUT","VERBOSE","MapName","BatteryLife","VisualizeComm" };
 	}
 
 	public Schedule getSchedule() {
@@ -157,6 +157,23 @@ public class ArmyPathFinderModel extends SimModelImpl {
 		conf.setMapName(mn);
 		
 	}
+	
+	public int getBatteryLife(){
+		return conf.getRadioBattery();
+	}
+	public void setBatteryLife(int bl){
+		conf.setRadioBattery(bl);
+	}
+	
+	
+	public boolean getVisualizeComm() {
+		return conf.isVisualizeComm();
+	}
+
+	public void setVisualizeComm(boolean VERBOSE) {
+		conf.setVisualizeComm(VERBOSE);
+	}
+	
 	public void setup() {
 		schedule = new Schedule();
 		if (dsurf != null)
@@ -281,6 +298,7 @@ public class ArmyPathFinderModel extends SimModelImpl {
 
 				
 				if (!agent.hasExited()) {
+					agent.resetColor();
 					agent.lookAround();
 					agent.move();		
 					agent.broadcastMap();

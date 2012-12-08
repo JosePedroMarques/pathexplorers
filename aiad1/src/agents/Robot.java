@@ -68,5 +68,11 @@ import utils.Pair;
 			
 		
 		}
+
+		@Override
+		public void resetColor() {
+			this.color = new Color(119,136,153);
+			
+		}
 		
 	}

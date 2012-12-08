@@ -14,10 +14,11 @@ public class Config {
 	private int sight_Range;
 	private MapName mapName;
 	private int radioBattery;
+	private boolean visualizeComm;
 
 	public Config(int live_robot, float EMPTYWEIGHT, float UNKOWNWEIGHT,
 			float DISPERSIONWEIGHT, int communication_Range, int sight_Range,
-			int TIMEOUT,boolean VERBOSE, MapName mapName, int radioBattery) {
+			int TIMEOUT,boolean VERBOSE, MapName mapName, int radioBattery, boolean visualizeComm) {
 		
 		this.live_robot = live_robot;
 		this.EMPTYWEIGHT = EMPTYWEIGHT;
@@ -28,6 +29,7 @@ public class Config {
 		this.TIMEOUT = TIMEOUT;
 		this.mapName = mapName;
 		this.radioBattery = radioBattery;
+		this.visualizeComm = visualizeComm;
 
 	}
 
@@ -164,6 +166,20 @@ public class Config {
 	
 	public void setRadioBattery(int rb){
 		this.radioBattery = rb;
+	}
+
+	/**
+	 * @return the visualizeComm
+	 */
+	public boolean isVisualizeComm() {
+		return visualizeComm;
+	}
+
+	/**
+	 * @param visualizeComm the visualizeComm to set
+	 */
+	public void setVisualizeComm(boolean visualizeComm) {
+		this.visualizeComm = visualizeComm;
 	}
 
 }
