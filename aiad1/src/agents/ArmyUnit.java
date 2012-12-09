@@ -22,7 +22,7 @@ import utils.Pair;
 import astar.AStar;
 import astar.AStarNode;
 
-public abstract class ArmyUnit extends BasicAgent {
+public abstract class ArmyUnit extends BasicUnit {
 
 	private static final int VISITEDPENALTY = 10;
 	protected int communicationRange = 20;
@@ -464,7 +464,7 @@ public abstract class ArmyUnit extends BasicAgent {
 				map.setPosition(xS, yS, new Cell(Value.Empty, xS, yS));
 			}
 		} else {
-			BasicAgent a = (BasicAgent) o;
+			BasicUnit a = (BasicUnit) o;
 			map.setPosition(xS, yS, new Cell(a.getValue(), xS, yS));
 			if (a.getValue() == Value.Wall)
 				return false;
@@ -536,7 +536,7 @@ public abstract class ArmyUnit extends BasicAgent {
 
 	protected boolean canCommunicate(Object o) {
 
-		if (((BasicAgent) o).canReceiveComms()) {
+		if (((BasicUnit) o).canReceiveComms()) {
 			ArmyUnit a = (ArmyUnit) o;
 			return Math.abs(x - a.getX()) <= a.getCommunicationRange()
 					&& Math.abs(y - a.getY()) <= a.getCommunicationRange();

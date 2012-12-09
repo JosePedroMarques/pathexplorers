@@ -5,7 +5,7 @@ import java.awt.Color;
 import map.Cell.Value;
 import uchicago.src.sim.gui.SimGraphics;
 
-public class Visited extends BasicAgent{
+public class Visited extends BasicUnit{
 
 	public Visited(int x,int y)
 	{

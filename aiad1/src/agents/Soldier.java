@@ -63,14 +63,14 @@ public class Soldier extends ArmyUnit {
 		if(hasReachedExit){
 			if(hasCommunicatedWithCaptain || waitTime >= TIMEOUT){
 				hasExited = true;
-				return  new Pair<Integer, Integer>(nextNode.getX(),
-						nextNode.getY());
+				return  new Pair<Integer, Integer>(x,
+						y);
 			}
 			aStarPath.clear();
 			aStarPath.push(nextNode);
 			waitTime++;
 			return  new Pair<Integer, Integer>(x,
-						y);
+					y);
 		}
 		waitTime = 0;
 		return  new Pair<Integer, Integer>(nextNode.getX(),

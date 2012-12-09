@@ -27,6 +27,7 @@ import agents.Captain;
 import agents.Exit;
 import agents.Robot;
 import agents.Soldier;
+import agents.Visited;
 import agents.Wall;
 
 public class ArmyPathFinderModel extends SimModelImpl {
@@ -305,8 +306,10 @@ public class ArmyPathFinderModel extends SimModelImpl {
 					updateGlobalMap(agent.getMap(), agent.getValue());
 					
 				
-				}else
+				}else{
+					space.putObjectAt(agent.getX(), agent.getY(), new Visited(agent.getX(),agent.getY()));
 					agentList.remove(agent);
+				}
 				
 
 			}

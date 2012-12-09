@@ -6,7 +6,7 @@ import map.Cell.Value;
 
 import uchicago.src.sim.gui.SimGraphics;
 
-public class Wall extends BasicAgent {
+public class Wall extends BasicUnit {
 
 	
 	public Wall(int x,int y)

@@ -63,7 +63,7 @@ public class Captain extends ArmyUnit{
 		Vector v = space.getMooreNeighbors(x, y, map.getX(),
 				map.getY(), false);
 		for (Object o : v) {
-			BasicAgent ba = (BasicAgent)o;
+			BasicUnit ba = (BasicUnit)o;
 			if (ba.canReceiveComms()) {
 				ArmyUnit a = (ArmyUnit) o;
 				if(a.getValue() == Value.Captain)
@@ -88,8 +88,11 @@ public class Captain extends ArmyUnit{
 	@Override
 	protected Pair<Integer, Integer> onExitFoundAction(AStarNode nextNode) {
 		// TODO Auto-generated method stub
-		if(hasReachedExit)
+		if(hasReachedExit){
 			hasExited = true;
+			return  new Pair<Integer, Integer>(x,
+					y);
+		}
 		return  new Pair<Integer, Integer>(nextNode.getX(),
 				nextNode.getY());
 		

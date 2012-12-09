@@ -5,7 +5,7 @@ import java.awt.Color;
 import map.Cell.Value;
 import uchicago.src.sim.gui.SimGraphics;
 
-public class Exit extends BasicAgent {
+public class Exit extends BasicUnit {
 
 	public Exit(int x, int y){
 		super(x,y,new Color(255,255,255));

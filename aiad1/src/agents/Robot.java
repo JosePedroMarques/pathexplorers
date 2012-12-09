@@ -54,8 +54,8 @@ import utils.Pair;
 			if(hasReachedExit){
 				if(hasCommunicatedWithCaptain){
 					hasExited = true;
-					return  new Pair<Integer, Integer>(nextNode.getX(),
-							nextNode.getY());
+					return  new Pair<Integer, Integer>(x,
+							y);
 				}
 				aStarPath.clear();
 				aStarPath.push(nextNode);
